@@ -1,0 +1,160 @@
+<script setup>
+import { ref, reactive } from 'vue'
+import BaseChart from '@/components/BaseChart.vue'
+import DataConfig from '@/components/DataConfig.vue'
+import StyleConfig from '@/components/StyleConfig.vue'
+import AdvancedConfig from '@/components/AdvancedConfig.vue'
+
+const activeTab = ref('type')
+const chartType = ref('line')
+
+const chartTypes = [
+  { value: 'line', label: '折线图' },
+  { value: 'bar', label: '柱状图' },
+  { value: 'pie', label: '饼图' },
+  { value: 'scatter', label: '散点图' }
+]
+
+const chartData = reactive({
+  categories: [],
+  series: []
+})
+
+const chartStyle = reactive({
+  title: '我的图表',
+  titleColor: '#333',
+  backgroundColor: '',
+  legendPosition: 'top'
+})
+
+const advancedConfig = reactive({
+  smooth: false,
+  stack: false,
+  radius: ['0%', '75%']
+})
+
+const currentOption = ref({})
+
+// 处理各配置组件的更新
+const handleDataUpdate = (data) => {
+  Object.assign(chartData, data)
+  generateOption()
+}
+
+const handleStyleUpdate = (style) => {
+  Object.assign(chartStyle, style)
+  generateOption()
+}
+
+const handleAdvancedUpdate = (config) => {
+  Object.assign(advancedConfig, config)
+  generateOption()
+}
+
+// 生成最终的echarts配置
+const generateOption = () => {
+  const option = {
+    title: {
+      text: chartStyle.title,
+      textStyle: {
+        color: chartStyle.titleColor
+      }
+    },
+    tooltip: {},
+    legend: {
+      data: chartData.series.map(s => s.name),
+      orient: chartStyle.legendPosition === 'left' || chartStyle.legendPosition === 'right' ? 'vertical' : 'horizontal',
+      [chartStyle.legendPosition]: 0
+    },
+    backgroundColor: chartStyle.backgroundColor
+  }
+
+  switch (chartType.value) {
+    case 'line':
+      option.xAxis = { type: 'category', data: chartData.categories }
+      option.yAxis = { type: 'value' }
+      option.series = chartData.series.map(series => ({
+        ...series,
+        type: 'line',
+        smooth: advancedConfig.smooth,
+        stack: advancedConfig.stack ? 'total' : undefined
+      }))
+      break
+    case 'bar':
+      option.xAxis = { type: 'category', data: chartData.categories }
+      option.yAxis = { type: 'value' }
+      option.series = chartData.series.map(series => ({
+        ...series,
+        type: 'bar',
+        stack: advancedConfig.stack ? 'total' : undefined
+      }))
+      break
+    case 'pie':
+      option.series = [{
+        type: 'pie',
+        data: chartData.series[0]?.data || [],
+        radius: advancedConfig.radius
+      }]
+      break
+  }
+
+  currentOption.value = option
+}
+
+// 初始化默认数据
+chartData.categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+chartData.series = [{
+  name: '销量',
+  data: [120, 200, 150, 80, 70, 110, 130]
+}]
+generateOption()
+</script>
+
+<template>
+  <div class="chart-configurator">
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="图表类型" name="type">
+        <el-select v-model="chartType" @change="generateOption">
+          <el-option
+            v-for="type in chartTypes"
+            :key="type.value"
+            :label="type.label"
+            :value="type.value"
+          />
+        </el-select>
+      </el-tab-pane>
+      
+      <el-tab-pane label="数据" name="data">
+        <DataConfig :chart-type="chartType" @update="handleDataUpdate" />
+      </el-tab-pane>
+      
+      <el-tab-pane label="样式" name="style">
+        <StyleConfig @update="handleStyleUpdate" />
+      </el-tab-pane>
+      
+      <el-tab-pane label="高级" name="advanced">
+        <AdvancedConfig :chart-type="chartType" @update="handleAdvancedUpdate" />
+      </el-tab-pane>
+    </el-tabs>
+    
+    <div class="chart-preview">
+      <BaseChart :option="currentOption" />
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.chart-configurator {
+  display: flex;
+  gap: 20px;
+}
+
+.chart-preview {
+  flex: 1;
+  min-height: 500px;
+}
+
+:deep(.el-tabs) {
+  width: 300px;
+}
+</style>
