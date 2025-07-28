@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue'
 import BaseChart from '@/components/BaseChart.vue'
 import DataConfig from '@/components/DataConfig.vue'
-import StyleConfig from '@/components/StyleConfig.vue'
+import CommonConfig from '@/components/CommonConfig.vue'
 import AdvancedConfig from '@/components/AdvancedConfig.vue'
 
 const activeTab = ref('type')
@@ -20,7 +20,7 @@ const chartData = reactive({
   series: []
 })
 
-const chartStyle = reactive({
+const commonConfig = reactive({
   title: '我的图表',
   titleColor: '#333',
   backgroundColor: '',
@@ -61,8 +61,8 @@ const handleDataUpdate = (data) => {
   generateOption()
 }
 
-const handleStyleUpdate = (style) => {
-  Object.assign(chartStyle, style)
+const handleCommonUpdate = (common) => {
+  Object.assign(commonConfig, common)
   generateOption()
 }
 
@@ -75,18 +75,18 @@ const handleAdvancedUpdate = (config) => {
 const generateOption = () => {
   const option = {
     title: {
-      text: chartStyle.title,
+      text: commonConfig.title,
       textStyle: {
-        color: chartStyle.titleColor
+        color: commonConfig.titleColor
       }
     },
     tooltip: {},
     legend: {
       data: chartData.series.map(s => s.name),
-      orient: chartStyle.legendPosition === 'left' || chartStyle.legendPosition === 'right' ? 'vertical' : 'horizontal',
-      [chartStyle.legendPosition]: 0
+      orient: commonConfig.legendPosition === 'left' || commonConfig.legendPosition === 'right' ? 'vertical' : 'horizontal',
+      [commonConfig.legendPosition]: 0
     },
-    backgroundColor: chartStyle.backgroundColor
+    backgroundColor: commonConfig.backgroundColor
   }
 
   switch (chartType.value) {
@@ -177,8 +177,8 @@ generateOption()
         <DataConfig :chart-type="chartType" @update="handleDataUpdate" />
       </el-tab-pane>
 
-      <el-tab-pane label="样式" name="style">
-        <StyleConfig @update="handleStyleUpdate" />
+      <el-tab-pane label="基础" name="common">
+        <CommonConfig @update="handleCommonUpdate" />
       </el-tab-pane>
 
       <el-tab-pane label="高级" name="advanced">

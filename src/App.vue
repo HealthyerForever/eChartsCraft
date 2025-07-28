@@ -1,5 +1,5 @@
 <script setup>
-import ChartConfigurator from '@/components/ChartConfigurator.vue'
+import ChartConfigurator from '@/views/ChartConfigurator.vue'
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 const props = defineProps({
   chartType: {
@@ -11,6 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['update'])
 
 const isPieChart = computed(() => props.chartType === 'pie')
+const showAreaConfig = ref(false)
 
 const config = reactive({
   // 通用配置
@@ -40,6 +41,10 @@ const config = reactive({
 
 const updateAdvance = () => {
   emit('update', { ...config })
+}
+
+const toggleAreaConfig = () => {
+  showAreaConfig.value = !showAreaConfig.value
 }
 
 // 初始化时触发一次更新
@@ -76,17 +81,28 @@ updateAdvance()
           <el-switch v-model="config.smooth" @change="updateAdvance" />
         </el-form-item>
 
-        <el-form-item label="面积图">
-          <el-switch v-model="config.areaStyle" @change="updateAdvance" />
-        </el-form-item>
+        <div class="config-group">
+          <div class="group-header" @click="toggleAreaConfig">
+            <el-form-item label="面积图">
+              <el-switch v-model="config.areaStyle" @click.stop @change="updateAdvance" />
+            </el-form-item>
+            <el-icon :class="['expand-icon', { 'rotate-180': showAreaConfig }]">
+              <ArrowDown />
+            </el-icon>
+          </div>
 
-        <el-form-item label="面积颜色" v-if="config.areaStyle">
-          <el-color-picker v-model="config.areaColor" @change="updateAdvance" show-alpha />
-        </el-form-item>
+          <el-collapse-transition>
+            <div v-show="showAreaConfig && config.areaStyle" class="group-content">
+              <el-form-item label="面积颜色">
+                <el-color-picker v-model="config.areaColor" @change="updateAdvance" show-alpha />
+              </el-form-item>
 
-        <el-form-item label="面积图透明度" v-if="config.areaStyle">
-          <el-slider v-model="config.areaOpacity" :min="0" :max="1" :step="0.1" @change="updateAdvance" />
-        </el-form-item>
+              <el-form-item label="透明度">
+                <el-slider v-model="config.areaOpacity" :min="0" :max="1" :step="0.1" @change="updateAdvance" />
+              </el-form-item>
+            </div>
+          </el-collapse-transition>
+        </div>
       </template>
 
       <!-- 饼图特有配置 -->
@@ -138,11 +154,46 @@ updateAdvance()
   padding: 10px;
 }
 
-.el-form-item {
-  margin-bottom: 18px;
+.config-group {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  overflow: hidden;
 }
 
-.el-slider {
-  width: 80%;
+.group-header {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background-color: #f5f7fa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.group-header .el-form-item {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.group-content {
+  padding: 10px;
+  background-color: #fff;
+}
+
+.el-form-item {
+  margin-bottom: 12px;
+}
+
+.el-form-item:last-child {
+  margin-bottom: 0;
+}
+
+.expand-icon {
+  padding: 0 10px;
+  transition: transform 0.3s;
 }
 </style>
