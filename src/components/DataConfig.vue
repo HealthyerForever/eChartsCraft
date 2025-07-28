@@ -50,10 +50,10 @@ updateData()
       >
         <el-input v-model="series.name" placeholder="系列名称" @input="updateData" />
         <el-input v-model="series.dataStr" @change="updateData" />
-        <el-button @click="removeSeries(index)">删除</el-button>
+        <el-button type="danger" @click="removeSeries(index)">删除</el-button>
       </el-form-item>
       
-      <el-button @click="addSeries">添加系列</el-button>
+      <el-button type="primary" @click="addSeries">添加系列</el-button>
     </el-form>
   </div>
 </template>

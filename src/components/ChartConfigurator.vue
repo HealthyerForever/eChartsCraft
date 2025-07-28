@@ -28,9 +28,29 @@ const chartStyle = reactive({
 })
 
 const advancedConfig = reactive({
-  smooth: false,
+  //通用配置
   stack: false,
-  radius: ['0%', '75%']
+  showLabel: false,
+  labelPosition: 'top',
+
+  //折线图配置
+  smooth: false,
+  areaStyle: false,
+  areaOpacity: 0.4,
+  areaColor: '#fff',
+
+  //柱状图配置
+  barWidth: 'auto',
+  barBorderRadius: 0,
+
+  //饼图配置
+  radius: '75%',
+  roseType: '',
+  showPercent: true,
+
+  //散点图配置
+  symbolSize: 10,
+  rippleEffect: false
 })
 
 const currentOption = ref({})
@@ -77,7 +97,15 @@ const generateOption = () => {
         ...series,
         type: 'line',
         smooth: advancedConfig.smooth,
-        stack: advancedConfig.stack ? 'total' : undefined
+        stack: advancedConfig.stack ? 'total' : undefined,
+        label: {
+          show: advancedConfig.showLabel,
+          position: advancedConfig.labelPosition || 'top'
+        },
+        areaStyle: advancedConfig.areaStyle ? {
+          color: advancedConfig.areaColor,
+          opacity: advancedConfig.areaOpacity
+        } : undefined
       }))
       break
     case 'bar':
@@ -86,15 +114,41 @@ const generateOption = () => {
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'bar',
-        stack: advancedConfig.stack ? 'total' : undefined
+        stack: advancedConfig.stack ? 'total' : undefined,
+        barWidth: advancedConfig.barWidth,
+        barBorderRadius: advancedConfig.barBorderRadius,
+        label: {
+          show: advancedConfig.showLabel,
+          position: advancedConfig.labelPosition || 'top'
+        }
       }))
       break
     case 'pie':
       option.series = [{
         type: 'pie',
         data: chartData.series[0]?.data || [],
-        radius: advancedConfig.radius
+        radius: advancedConfig.radius,
+        roseType: advancedConfig.roseType,
+        label: {
+          show: advancedConfig.showLabel,
+          position: advancedConfig.labelPosition || 'top',
+          formatter: advancedConfig.showPercent ? '{b}: {c} ({d}%)' : '{b}: {c}'
+        }
       }]
+      break
+    case 'scatter':
+      option.xAxis = { type: 'category', data: chartData.categories }
+      option.yAxis = { type: 'value' }
+      option.series = chartData.series.map(series => ({
+        ...series,
+        type: 'scatter',
+        symbolSize: advancedConfig.symbolSize,
+        rippleEffect: advancedConfig.rippleEffect,
+        label: {
+          show: advancedConfig.showLabel,
+          position: advancedConfig.labelPosition || 'top'
+        }
+      }))
       break
   }
 
@@ -115,28 +169,23 @@ generateOption()
     <el-tabs v-model="activeTab">
       <el-tab-pane label="图表类型" name="type">
         <el-select v-model="chartType" @change="generateOption">
-          <el-option
-            v-for="type in chartTypes"
-            :key="type.value"
-            :label="type.label"
-            :value="type.value"
-          />
+          <el-option v-for="type in chartTypes" :key="type.value" :label="type.label" :value="type.value" />
         </el-select>
       </el-tab-pane>
-      
+
       <el-tab-pane label="数据" name="data">
         <DataConfig :chart-type="chartType" @update="handleDataUpdate" />
       </el-tab-pane>
-      
+
       <el-tab-pane label="样式" name="style">
         <StyleConfig @update="handleStyleUpdate" />
       </el-tab-pane>
-      
+
       <el-tab-pane label="高级" name="advanced">
         <AdvancedConfig :chart-type="chartType" @update="handleAdvancedUpdate" />
       </el-tab-pane>
     </el-tabs>
-    
+
     <div class="chart-preview">
       <BaseChart :option="currentOption" />
     </div>
