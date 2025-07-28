@@ -23,7 +23,7 @@ const chartData = reactive({
 const commonConfig = reactive({
   // 标题配置
   titleShow: true,
-  title: '我的图表',
+  title: '标题',
   titleColor: '#333',
   titleFontSize: 16,
   titleFontWeight: 'normal',
@@ -39,13 +39,22 @@ const commonConfig = reactive({
   legendPosition: 'right',
   legendPadding: 5,
   legendItemGap: 10,
-  legendWidth: 'auto',
-  legendHeight: 'auto',
+  legendWidth: '20',
+  legendHeight: '10',
+  legendAlign: 'auto',
+  legendItemWidth: 25,
   legendBackgroundColor: '#fff',
   legendBorderColor: '#ccc',
+  legendBorderWidth: 0,
+  legendFontColor: '#333',
+  legendFontSize: 12,
+  legendFontWeight: 'normal',
+
+  // 坐标系配置
+  gridShow: false,
 
   backgroundColor: '',
-  legendPosition: 'top'
+  darkMode: false
 })
 
 const advancedConfig = reactive({
@@ -116,12 +125,22 @@ const generateOption = () => {
       [commonConfig.legendPosition]: 0,
       backgroundColor: commonConfig.legendBackgroundColor,
       borderColor: commonConfig.legendBorderColor,
+      borderWidth: commonConfig.legendBorderWidth,
       itemWidth: commonConfig.legendWidth,
       itemHeight: commonConfig.legendHeight,
+      align: commonConfig.legendAlign,
       padding: commonConfig.legendPadding,
       itemGap: commonConfig.legendItemGap,
+      textStyle: {
+        color: commonConfig.legendFontColor,
+        fontSize: commonConfig.legendFontSize,
+        fontWeight: commonConfig.legendFontWeight
+      }
     },
-    backgroundColor: commonConfig.backgroundColor
+    grid: {
+      show: commonConfig.gridShow,
+    },
+    backgroundColor: commonConfig.backgroundColor,
   }
 
   switch (chartType.value) {
@@ -223,7 +242,7 @@ generateOption()
     </el-tabs>
 
     <div class="chart-preview">
-      <BaseChart :option="currentOption" />
+      <BaseChart :option="currentOption" :theme="commonConfig.darkMode ? 'dark' : 'light'" />
     </div>
   </div>
 </template>

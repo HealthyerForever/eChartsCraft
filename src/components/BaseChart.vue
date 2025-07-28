@@ -1,5 +1,6 @@
 <script setup>
 import * as echarts from 'echarts'
+import 'echarts/theme/dark.js'
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -27,6 +28,9 @@ let chartInstance = null
 // 初始化图表
 const initChart = () => {
   if (chartRef.value) {
+    if (chartInstance) {
+      chartInstance.dispose()
+    }
     chartInstance = echarts.init(chartRef.value, props.theme)
     chartInstance.setOption(props.option)
   }
@@ -41,6 +45,16 @@ const updateChart = () => {
 
 // 响应式更新
 watch(() => props.option, updateChart, { deep: true })
+watch(
+  () => props.theme,
+  (newTheme) => {
+    if (chartInstance) {
+      chartInstance.dispose()
+      chartInstance = null
+    }
+    initChart()
+  }
+)
 
 // 窗口大小变化时重绘
 const handleResize = () => {
