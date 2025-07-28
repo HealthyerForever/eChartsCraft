@@ -21,8 +21,29 @@ const chartData = reactive({
 })
 
 const commonConfig = reactive({
+  // 标题配置
+  titleShow: true,
   title: '我的图表',
   titleColor: '#333',
+  titleFontSize: 16,
+  titleFontWeight: 'normal',
+  titleAlign: 'left',
+  titlePadding: 10,
+  subtitle: '',
+  subtitleColor: '#666',
+  subtitleFontSize: 14,
+  subtitleFontWeight: 'normal',
+
+  // 图例配置
+  legendShow: true,
+  legendPosition: 'right',
+  legendPadding: 5,
+  legendItemGap: 10,
+  legendWidth: 'auto',
+  legendHeight: 'auto',
+  legendBackgroundColor: '#fff',
+  legendBorderColor: '#ccc',
+
   backgroundColor: '',
   legendPosition: 'top'
 })
@@ -66,25 +87,39 @@ const handleCommonUpdate = (common) => {
   generateOption()
 }
 
-const handleAdvancedUpdate = (config) => {
-  Object.assign(advancedConfig, config)
-  generateOption()
-}
-
 // 生成最终的echarts配置
 const generateOption = () => {
   const option = {
     title: {
+      show: commonConfig.titleShow,
       text: commonConfig.title,
+      subtext: commonConfig.subtext,
+      subtextStyle: {
+        color: commonConfig.subtitleColor,
+        fontSize: commonConfig.subtitleFontSize,
+        fontWeight: commonConfig.subtitleFontWeight
+      },
       textStyle: {
-        color: commonConfig.titleColor
-      }
+        color: commonConfig.titleColor,
+        fontSize: commonConfig.titleFontSize,
+        fontWeight: commonConfig.titleFontWeight,
+      },
+      left: commonConfig.titleAlign, // 'left' | 'center' | 'right'
+      top: 0,
+      padding: commonConfig.titlePadding
     },
     tooltip: {},
     legend: {
+      show: commonConfig.legendShow,
       data: chartData.series.map(s => s.name),
       orient: commonConfig.legendPosition === 'left' || commonConfig.legendPosition === 'right' ? 'vertical' : 'horizontal',
-      [commonConfig.legendPosition]: 0
+      [commonConfig.legendPosition]: 0,
+      backgroundColor: commonConfig.legendBackgroundColor,
+      borderColor: commonConfig.legendBorderColor,
+      itemWidth: commonConfig.legendWidth,
+      itemHeight: commonConfig.legendHeight,
+      padding: commonConfig.legendPadding,
+      itemGap: commonConfig.legendItemGap,
     },
     backgroundColor: commonConfig.backgroundColor
   }
@@ -182,7 +217,8 @@ generateOption()
       </el-tab-pane>
 
       <el-tab-pane label="高级" name="advanced">
-        <AdvancedConfig :chart-type="chartType" @update="handleAdvancedUpdate" />
+        <AdvancedConfig :chart-type="chartType" :model-value="advancedConfig"
+          @update:modelValue="val => Object.assign(advancedConfig, val)" />
       </el-tab-pane>
     </el-tabs>
 
@@ -199,8 +235,11 @@ generateOption()
 }
 
 .chart-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 1;
-  min-height: 500px;
+  min-height: 600px;
 }
 
 :deep(.el-tabs) {
