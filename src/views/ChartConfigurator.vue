@@ -25,7 +25,7 @@ const commonConfig = reactive({
   titleShow: true,
   title: '标题',
   titleColor: '#333',
-  titleFontSize: 16,
+  titleFontSize: 20,
   titleFontWeight: 'normal',
   titleAlign: 'left',
   titlePadding: 10,
@@ -52,6 +52,28 @@ const commonConfig = reactive({
 
   // 坐标系配置
   gridShow: false,
+  gridWidth: 'auto',
+  gridHeight: 'auto',
+  gridBorderColor: '#ccc',
+  gridBorderWidth: 1,
+  gridBackgroundColor: 'transparent',
+
+  // 坐标轴配置
+  xAxisShow: true,
+  xAxisTitle: '',
+  xAxisPosition: 'bottom',
+  xAxisType: 'category',
+  xAxisMin: null,
+  xAxisMax: null,
+  xAxisReverse: false,
+  xAxisLabelStyle: {},
+  yAxisShow: true,
+  yAxisTitle: '',
+  yAxisPosition: 'left',
+  yAxisType: 'value',
+  yAxisMin: null,
+  yAxisMax: null,
+  yAxisReverse: false,
 
   backgroundColor: '',
   darkMode: false
@@ -98,6 +120,34 @@ const handleCommonUpdate = (common) => {
 
 // 生成最终的echarts配置
 const generateOption = () => {
+  const baseXAxis = {
+      show: commonConfig.xAxisShow,
+      type: commonConfig.xAxisType,
+      data: chartData.categories,
+      name: commonConfig.xAxisTitle,
+      position: commonConfig.xAxisPosition,
+      min: commonConfig.xAxisMin,
+      max: commonConfig.xAxisMax,
+      axisLabel: {
+        ...commonConfig.xAxisLabelStyle,
+      },
+      inverse: commonConfig.xAxisReverse
+    }
+
+  const baseYAxis = {
+      show: commonConfig.yAxisShow,
+      type: commonConfig.yAxisType,
+      name: commonConfig.yAxisTitle,
+      position: commonConfig.yAxisPosition,
+      min: commonConfig.yAxisMin,
+      max: commonConfig.yAxisMax,
+      axisLabel: {
+        color: commonConfig.legendFontColor,
+        fontSize: commonConfig.legendFontSize
+      },
+      inverse: commonConfig.yAxisReverse
+    }
+
   const option = {
     title: {
       show: commonConfig.titleShow,
@@ -139,14 +189,19 @@ const generateOption = () => {
     },
     grid: {
       show: commonConfig.gridShow,
+      width: commonConfig.gridWidth,
+      height: commonConfig.gridHeight,
+      borderColor: commonConfig.gridBorderColor,
+      borderWidth: commonConfig.gridBorderWidth,
+      backgroundColor: commonConfig.gridBackgroundColor
     },
     backgroundColor: commonConfig.backgroundColor,
   }
 
   switch (chartType.value) {
     case 'line':
-      option.xAxis = { type: 'category', data: chartData.categories }
-      option.yAxis = { type: 'value' }
+      option.xAxis = { ...baseXAxis, type: 'category', data: chartData.categories }
+      option.yAxis = { ...baseYAxis, type: 'value' }
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'line',
@@ -163,8 +218,8 @@ const generateOption = () => {
       }))
       break
     case 'bar':
-      option.xAxis = { type: 'category', data: chartData.categories }
-      option.yAxis = { type: 'value' }
+      option.xAxis = { ...baseXAxis, type: 'category', data: chartData.categories }
+      option.yAxis = { ...baseYAxis, type: 'value' }
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'bar',
@@ -191,8 +246,8 @@ const generateOption = () => {
       }]
       break
     case 'scatter':
-      option.xAxis = { type: 'category', data: chartData.categories }
-      option.yAxis = { type: 'value' }
+      option.xAxis = { ...baseXAxis, type: 'category', data: chartData.categories }
+      option.yAxis = { ...baseYAxis, type: 'value' }
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'scatter',
@@ -249,8 +304,9 @@ generateOption()
 
 <style scoped>
 .chart-configurator {
+  padding: 20px;
   display: flex;
-  gap: 20px;
+  gap: 40px;
 }
 
 .chart-preview {
@@ -263,5 +319,6 @@ generateOption()
 
 :deep(.el-tabs) {
   width: 300px;
+  height: 700px;
 }
 </style>

@@ -10,7 +10,7 @@ import ChartConfigurator from '@/views/ChartConfigurator.vue'
 
 <style>
 .app-container {
-  padding: 20px;
+  padding: 0px 20px 0 20px;
   height: 100vh;
 }
 </style>

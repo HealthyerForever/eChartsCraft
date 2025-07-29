@@ -1,6 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   margin: 0 auto;
-  padding: 2rem;
+}
+
+.style-config {
+  padding: 10px;
+  height: 600px;        
+  overflow: auto;
 }
 
 .group-header {
@@ -34,7 +44,6 @@
 }
 
 .config-group .el-form-item {
-  background-color: #f5f7fa;
   margin-bottom: 4px;
 }
 

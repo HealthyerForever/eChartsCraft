@@ -1,45 +1,99 @@
 <script setup>
-import { tr } from 'element-plus/es/locales.mjs'
 import { ref, reactive, watchEffect } from 'vue'
+import CodeDialog from '@/components/dialogs/CodeDialog.vue'
 
 const emit = defineEmits(['update'])
 
+// 显示/隐藏各个配置区域
 const showTitleAreaConfig = ref(false)
 const showSubtitleAreaConfig = ref(false)
 const showLegendAreaConfig = ref(false)
 const showLegendFontAreaConfig = ref(false)
 const showGridAreaConfig = ref(false)
+const showXAxisAreaConfig = ref(false)
+const showYAxisAreaConfig = ref(false)
 
+// 显示对话框
+const showAxisLabelDialog = ref(false)
+
+// 自定义代码
+const axisLabelCode = ref('return { color: "#333", fontSize: 12 }')
+
+// 配置对象
 const config = reactive({
+  // 标题配置
   titleShow: true,
   title: '标题',
-  titleFontSize: 20,
   titleColor: '#333',
+  titleFontSize: 20,
   titleFontWeight: 'normal',
   titleAlign: 'left',
   titlePadding: 10,
+  subtitle: '',
+  subtitleColor: '#666',
+  subtitleFontSize: 14,
+  subtitleFontWeight: 'normal',
 
-  subtext: '',
-  subtextColor: '#666',
-  subtextFontSize: 14,
-  subtextFontWeight: 'normal',
-
+  // 图例配置
   legendShow: true,
   legendPosition: 'right',
   legendPadding: 5,
   legendItemGap: 10,
   legendWidth: '20',
   legendHeight: '10',
+  legendAlign: 'auto',
+  legendItemWidth: 25,
+  legendBackgroundColor: '#fff',
+  legendBorderColor: '#ccc',
+  legendBorderWidth: 0,
+  legendFontColor: '#333',
+  legendFontSize: 12,
+  legendFontWeight: 'normal',
 
-  backgroundColor: '#fff'
+  // 坐标系配置
+  gridShow: false,
+  gridWidth: 'auto',
+  gridHeight: 'auto',
+  gridBorderColor: '#ccc',
+  gridBorderWidth: 1,
+  gridBackgroundColor: 'transparent',
+
+  // 坐标轴配置
+  xAxisShow: true,
+  xAxisTitle: '',
+  xAxisPosition: 'bottom',
+  xAxisMin: null,
+  xAxisMax: null,
+  yAxisShow: true,
+  yAxisTitle: '',
+  yAxisPosition: 'left',
+  yAxisMin: null,
+  yAxisMax: null,
+
+  backgroundColor: '',
+  darkMode: false
 })
 
 const updateCommon = () => {
   emit('update', { ...config })
 }
 
-// 自动监听变化
-watchEffect(updateCommon)
+// 监听代码变化，更新配置
+function useCodeToConfig(codeRef, targetObj, key, updateFn) {
+  watchEffect(() => {
+    if (codeRef.value) {
+      try {
+        const fn = new Function(codeRef.value)
+        targetObj[key] = fn()
+      } catch (e) {
+        targetObj[key] = {}
+      }
+      updateFn && updateFn()
+    }
+  })
+}
+
+useCodeToConfig(axisLabelCode, config, 'xAxisLabelStyle', updateCommon)
 </script>
 
 <template>
@@ -211,6 +265,111 @@ watchEffect(updateCommon)
 
         <el-collapse-transition>
           <div v-show="config.gridShow && showGridAreaConfig" class="group-content">
+            <el-form-item label="坐标系宽度">
+              <el-input-number v-model="config.gridWidth" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="坐标系高度">
+              <el-input-number v-model="config.gridHeight" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="背景颜色">
+              <el-color-picker v-model="config.gridBackgroundColor" @change="updateCommon" show-alpha />
+            </el-form-item>
+            <el-form-item label="边框颜色">
+              <el-color-picker v-model="config.gridBorderColor" @change="updateCommon" show-alpha />
+            </el-form-item>
+            <el-form-item label="边框宽度">
+              <el-input-number v-model="config.gridBorderWidth" @change="updateCommon" />
+            </el-form-item>
+          </div>
+        </el-collapse-transition>
+      </div>
+
+      <div class="config-group">
+        <div class="group-header" @click="showXAxisAreaConfig = !showXAxisAreaConfig">
+          <el-form-item label="x轴">
+            <el-switch v-model="config.xAxisShow" @click.stop @click="showXAxisAreaConfig = config.xAxisShow"
+              @change="updateCommon" />
+          </el-form-item>
+          <el-icon :class="['expand-icon', { 'rotate-180': showXAxisAreaConfig }]">
+            <ArrowDown />
+          </el-icon>
+        </div>
+
+        <el-collapse-transition>
+          <div v-show="showXAxisAreaConfig" class="group-content">
+            <el-form-item label="x轴标题">
+              <el-input v-model="config.xAxisTitle" @input="updateCommon" />
+            </el-form-item>
+            <el-form-item label="x轴位置">
+              <el-select v-model="config.xAxisPosition" @change="updateCommon">
+                <el-option label="底部" value="bottom" />
+                <el-option label="顶部" value="top" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="x轴类型">
+              <el-select v-model="config.xAxisType" @change="updateCommon">
+                <el-option label="类目轴" value="category" />
+                <el-option label="数值轴" value="value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="刻度最小值">
+              <el-input-number v-model="config.xAxisMin" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="刻度最大值">
+              <el-input-number v-model="config.xAxisMax" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="反转x轴">
+              <el-switch v-model="config.xAxisReverse" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="刻度标签配置">
+              <el-button type="primary" @click="showAxisLabelDialog = true">自定义</el-button>
+            </el-form-item>
+
+            <CodeDialog v-model="axisLabelCode" :visible="showAxisLabelDialog"
+              @update:visible="v => showAxisLabelDialog = v" title="自定义x轴刻度标签样式"
+              placeholder="如：return { color: '#f00', fontSize: 16 }" />
+
+          </div>
+        </el-collapse-transition>
+      </div>
+
+      <div class="config-group">
+        <div class="group-header" @click="showYAxisAreaConfig = !showYAxisAreaConfig">
+          <el-form-item label="y轴">
+            <el-switch v-model="config.yAxisShow" @click.stop @click="showYAxisAreaConfig = config.yAxisShow"
+              @change="updateCommon" />
+          </el-form-item>
+          <el-icon :class="['expand-icon', { 'rotate-180': showYAxisAreaConfig }]">
+            <ArrowDown />
+          </el-icon>
+        </div>
+
+        <el-collapse-transition>
+          <div v-show="showYAxisAreaConfig" class="group-content">
+            <el-form-item label="y轴标题">
+              <el-input v-model="config.yAxisTitle" @input="updateCommon" />
+            </el-form-item>
+            <el-form-item label="y轴位置">
+              <el-select v-model="config.yAxisPosition" @change="updateCommon">
+                <el-option label="左边" value="left" />
+                <el-option label="右边" value="right" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="y轴类型">
+              <el-select v-model="config.yAxisType" @change="updateCommon">
+                <el-option label="类目轴" value="category" />
+                <el-option label="数值轴" value="value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="刻度最小值">
+              <el-input-number v-model="config.yAxisMin" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="刻度最大值">
+              <el-input-number v-model="config.yAxisMax" @change="updateCommon" />
+            </el-form-item>
+            <el-form-item label="反转y轴">
+              <el-switch v-model="config.yAxisReverse" @change="updateCommon" />
+            </el-form-item>
 
           </div>
         </el-collapse-transition>
@@ -230,6 +389,6 @@ watchEffect(updateCommon)
 
 <style scoped>
 .style-config {
-  padding: 10px;
+  padding: 10px 10px 10px 0;
 }
 </style>
