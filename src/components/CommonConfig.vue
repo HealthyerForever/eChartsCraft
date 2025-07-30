@@ -21,7 +21,7 @@ const axisLabelCode = ref('return { color: "#333", fontSize: 12 }')
 
 // 配置对象
 const config = reactive({
-  // 标题配置
+    // 标题配置
   titleShow: true,
   title: '标题',
   titleColor: '#333',
@@ -39,9 +39,9 @@ const config = reactive({
   legendPosition: 'right',
   legendPadding: 5,
   legendItemGap: 10,
-  legendWidth: '20',
-  legendHeight: '10',
-  legendAlign: 'auto',
+  legendWidth: 20,
+  legendHeight: 10,
+  legendAlign: 'right',
   legendItemWidth: 25,
   legendBackgroundColor: '#fff',
   legendBorderColor: '#ccc',
@@ -52,8 +52,8 @@ const config = reactive({
 
   // 坐标系配置
   gridShow: false,
-  gridWidth: 'auto',
-  gridHeight: 'auto',
+  gridWidth: null,
+  gridHeight: null,
   gridBorderColor: '#ccc',
   gridBorderWidth: 1,
   gridBackgroundColor: 'transparent',
@@ -62,13 +62,18 @@ const config = reactive({
   xAxisShow: true,
   xAxisTitle: '',
   xAxisPosition: 'bottom',
+  xAxisType: 'category',
   xAxisMin: null,
   xAxisMax: null,
+  xAxisReverse: false,
+  xAxisLabelStyle: {},
   yAxisShow: true,
   yAxisTitle: '',
   yAxisPosition: 'left',
+  yAxisType: 'value',
   yAxisMin: null,
   yAxisMax: null,
+  yAxisReverse: false,
 
   backgroundColor: '',
   darkMode: false

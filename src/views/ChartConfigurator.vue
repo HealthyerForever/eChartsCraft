@@ -39,9 +39,9 @@ const commonConfig = reactive({
   legendPosition: 'right',
   legendPadding: 5,
   legendItemGap: 10,
-  legendWidth: '20',
-  legendHeight: '10',
-  legendAlign: 'auto',
+  legendWidth: 20,
+  legendHeight: 10,
+  legendAlign: 'right',
   legendItemWidth: 25,
   legendBackgroundColor: '#fff',
   legendBorderColor: '#ccc',
@@ -52,8 +52,8 @@ const commonConfig = reactive({
 
   // 坐标系配置
   gridShow: false,
-  gridWidth: 'auto',
-  gridHeight: 'auto',
+  gridWidth: null,
+  gridHeight: null,
   gridBorderColor: '#ccc',
   gridBorderWidth: 1,
   gridBackgroundColor: 'transparent',
