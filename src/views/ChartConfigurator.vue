@@ -21,62 +21,7 @@ const chartData = reactive({
 })
 
 const commonConfig = reactive({
-  // 标题配置
-  titleShow: true,
-  title: '标题',
-  titleColor: '#333',
-  titleFontSize: 20,
-  titleFontWeight: 'normal',
-  titleAlign: 'left',
-  titlePadding: 10,
-  subtitle: '',
-  subtitleColor: '#666',
-  subtitleFontSize: 14,
-  subtitleFontWeight: 'normal',
-
-  // 图例配置
-  legendShow: true,
-  legendPosition: 'right',
-  legendPadding: 5,
-  legendItemGap: 10,
-  legendWidth: '20',
-  legendHeight: '10',
-  legendAlign: 'auto',
-  legendItemWidth: 25,
-  legendBackgroundColor: '#fff',
-  legendBorderColor: '#ccc',
-  legendBorderWidth: 0,
-  legendFontColor: '#333',
-  legendFontSize: 12,
-  legendFontWeight: 'normal',
-
-  // 坐标系配置
-  gridShow: false,
-  gridWidth: 'auto',
-  gridHeight: 'auto',
-  gridBorderColor: '#ccc',
-  gridBorderWidth: 1,
-  gridBackgroundColor: 'transparent',
-
-  // 坐标轴配置
-  xAxisShow: true,
-  xAxisTitle: '',
-  xAxisPosition: 'bottom',
-  xAxisType: 'category',
-  xAxisMin: null,
-  xAxisMax: null,
-  xAxisReverse: false,
-  xAxisLabelStyle: {},
-  yAxisShow: true,
-  yAxisTitle: '',
-  yAxisPosition: 'left',
-  yAxisType: 'value',
-  yAxisMin: null,
-  yAxisMax: null,
-  yAxisReverse: false,
-
-  backgroundColor: '',
-  darkMode: false
+ 
 })
 
 const advancedConfig = reactive({
