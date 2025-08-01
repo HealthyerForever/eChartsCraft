@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watchEffect } from 'vue'
+import { reactive, watch } from 'vue'
 import CodeDialog from '@/components/dialogs/CodeDialog.vue'
 
 const emit = defineEmits(['update'])
@@ -17,10 +17,12 @@ const showGroup = reactive({
 
 // 代码弹窗相关
 const showDialog = reactive({
-  xAxisLabel: false,
+  subtextStyle: false,
+  xAxisLabelStyle: false,
 })
 
 const code = reactive({
+  subtextStyle: 'return { color: "#000", fontSize: 16 }',
   xAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
 })
 
@@ -35,9 +37,7 @@ const config = reactive({
   titleAlign: 'left',
   titlePadding: 10,
   subtext: '',
-  subtitleColor: '#666',
-  subtitleFontSize: 14,
-  subtitleFontWeight: 'normal',
+  subtextStyle: {},
 
   // 图例配置
   legendShow: true,
@@ -98,7 +98,8 @@ const formGroups = [
     expanded: () => showGroup.title,
     items: [
       { type: 'switch', label: '标题', prop: 'titleShow' },
-      { type: 'input', label: '图表标题', prop: 'title' },
+      { type: 'input', label: '主标题', prop: 'title' },
+      { type: 'input', label: '副标题', prop: 'subtext' },
       { type: 'input-number', label: '字体大小', prop: 'titleFontSize' },
       { type: 'color-picker', label: '标题颜色', prop: 'titleColor' },
       {
@@ -118,27 +119,13 @@ const formGroups = [
         ]
       },
       { type: 'input-number', label: '内边距', prop: 'titlePadding' },
-      // 副标题分组
       {
-        type: 'group',
-        label: '副标题',
-        key: 'subtitle',
-        show: () => true,
-        toggle: () => showGroup.subtitle = !showGroup.subtitle,
-        expanded: () => showGroup.subtitle,
-        items: [
-          { type: 'input', label: '副标题', prop: 'subtext' },
-          { type: 'color-picker', label: '字体颜色', prop: 'subtitleColor' },
-          { type: 'input-number', label: '字体大小', prop: 'subtitleFontSize' },
-          {
-            type: 'select', label: '字体粗细', prop: 'subtitleFontWeight',
-            options: [
-              { label: '正常', value: 'normal' },
-              { label: '粗体', value: 'bold' },
-              { label: '细体', value: 'lighter' }
-            ]
-          }
-        ]
+        type: 'custom',
+        label: '副标题样式',
+        key: 'subtextStyle',
+        prop: 'subtextStyle',
+        dialogTitle: '副标题样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
       }
     ]
   },
@@ -240,13 +227,11 @@ const formGroups = [
       { type: 'input-number', label: '刻度最小值', prop: 'xAxisMin' },
       { type: 'input-number', label: '刻度最大值', prop: 'xAxisMax' },
       { type: 'switch', label: '反转x轴', prop: 'xAxisReverse' },
-      // 复杂项：自定义代码弹窗
-      { 
-        type: 'custom', 
+      {
+        type: 'custom',
         label: '刻度标签',
-        dialogKey: 'xAxisLabel',
-        codeKey: 'xAxisLabelStyle',
-        prop: 'xAxisLabelStyle', 
+        key: 'xAxisLabelStyle',
+        prop: 'xAxisLabelStyle',
         dialogTitle: 'x轴刻度标签样式',
         placeholder: '如：return { color: "#f00", fontSize: 16 }',
       }
@@ -287,21 +272,23 @@ const updateCommon = () => {
   emit('update', { ...config })
 }
 
-// 监听代码变化，更新配置
+// 监听代码变化，自动更新配置
 function useCodeToConfig(codeKey, targetObj, prop, updateFn) {
-  watchEffect(() => {
-    const codeRef = code[codeKey]
-    if (codeRef) {
-      try {
-        //console.log(`Evaluating code for ${prop}:`, codeRef)
-        const fn = new Function(codeRef)
-        targetObj[prop] = fn()
-      } catch (e) {
-        targetObj[prop] = {}
+  watch(
+    () => code[codeKey], 
+    (newValue) => {
+      if (newValue) {
+        try {
+          const fn = new Function(newValue);
+          targetObj[prop] = fn();
+        } catch (e) {
+          targetObj[prop] = {};
+        }
+        updateFn?.();
       }
-      updateFn && updateFn()
-    }
-  })
+    },
+    { immediate: true }  
+  );
 }
 
 // 辅助函数
@@ -320,7 +307,7 @@ function getComponentType(type) {
 formGroups.forEach(group => {
   group.items.forEach(item => {
     if (item.type === 'custom') {
-      useCodeToConfig(item.codeKey, config, item.prop, updateCommon);
+      useCodeToConfig(item.key, config, item.prop, updateCommon);
     }
   });
 });
@@ -343,7 +330,7 @@ formGroups.forEach(group => {
           </div>
           <el-collapse-transition>
             <div v-show="group.show() && group.expanded()" class="group-content">
-              <template v-for="(item, idx) in group.items" :key="item.prop || item.label || item.customKey">
+              <template v-for="(item, idx) in group.items" :key="item.prop || item.label">
                 <!-- 跳过第一个switch项（已在header渲染） -->
                 <template v-if="!(idx === 0 && item.type === 'switch')">
                   <!-- 普通表单项 -->
@@ -360,41 +347,12 @@ formGroups.forEach(group => {
                       </component>
                     </el-form-item>
                   </template>
-                  <!-- 嵌套分组 -->
-                  <template v-else-if="item.type === 'group'">
-                    <div class="config-group">
-                      <div class="group-header" @click="item.toggle()">
-                        <el-form-item :label="item.label"></el-form-item>
-                        <el-icon :class="['expand-icon', { 'rotate-180': item.expanded() }]">
-                          <ArrowDown />
-                        </el-icon>
-                      </div>
-                      <el-collapse-transition>
-                        <div v-show="item.show() && item.expanded()" class="group-content">
-                          <template v-for="sub in item.items" :key="sub.prop || sub.label">
-                            <el-form-item :label="sub.label">
-                              <component :is="getComponentType(sub.type)" v-model="config[sub.prop]"
-                                v-bind="sub.options ? { options: sub.options } : {}" @change="updateCommon"
-                                @input="updateCommon">
-                                <template v-if="sub.type === 'select'">
-                                  <template v-for="opt in sub.options" :key="opt.value">
-                                    <el-option :label="opt.label" :value="opt.value" />
-                                  </template>
-                                </template>
-                              </component>
-                            </el-form-item>
-                          </template>
-                        </div>
-                      </el-collapse-transition>
-                    </div>
-                  </template>
-                  <!-- 复杂自定义项 -->
+                  <!-- 自定义项 -->
                   <template v-else-if="item.type === 'custom'">
                     <el-form-item :label="item.label">
-                      <el-button type="primary" size="small" @click="showDialog[item.dialogKey] = true">自定义</el-button>
-                      <CodeDialog v-model="code[item.codeKey]" :visible="showDialog[item.dialogKey]"
-                        :title="item.dialogTitle" :placeholder="item.placeholder"
-                        @update:visible="v => showDialog[item.dialogKey] = v" />
+                      <el-button type="primary" size="small" @click="showDialog[item.key] = true">自定义</el-button>
+                      <CodeDialog v-model="code[item.key]" :visible="showDialog[item.key]" :title="item.dialogTitle"
+                        :placeholder="item.placeholder" @update:visible="v => showDialog[item.key] = v" />
                     </el-form-item>
                   </template>
                 </template>

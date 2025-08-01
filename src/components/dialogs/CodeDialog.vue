@@ -32,7 +32,7 @@ const handleOk = () => {
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="500px">
+  <el-dialog v-model="dialogVisible" :title="title" width="500px" draggable="true" center="true">
     <el-input
       type="textarea"
       v-model="code"
@@ -40,7 +40,6 @@ const handleOk = () => {
       :placeholder="placeholder"
     />
     <template #footer>
-      <el-button @click="dialogVisible = false">取消</el-button>
       <el-button type="primary" @click="handleOk">确定</el-button>
     </template>
   </el-dialog>

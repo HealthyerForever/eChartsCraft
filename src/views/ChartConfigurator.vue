@@ -99,9 +99,7 @@ const generateOption = () => {
       text: commonConfig.title,
       subtext: commonConfig.subtext,
       subtextStyle: {
-        color: commonConfig.subtitleColor,
-        fontSize: commonConfig.subtitleFontSize,
-        fontWeight: commonConfig.subtitleFontWeight
+        ...commonConfig.subtextStyle, 
       },
       textStyle: {
         color: commonConfig.titleColor,
