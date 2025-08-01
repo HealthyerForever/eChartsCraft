@@ -74,7 +74,11 @@ const generateOption = () => {
       min: commonConfig.xAxisMin,
       max: commonConfig.xAxisMax,
       axisLabel: commonConfig.xAxisLabelStyle,
-      inverse: commonConfig.xAxisReverse
+      inverse: commonConfig.xAxisReverse,
+      nameTextStyle: commonConfig.xAxisNameTextStyle,
+      axisLine: commonConfig.xAxisLineStyle,
+      axisTick: commonConfig.xAxisTickStyle,
+      splitLine: commonConfig.xAxisSplitLineStyle
     }
 
   const baseYAxis = {
@@ -84,11 +88,12 @@ const generateOption = () => {
       position: commonConfig.yAxisPosition,
       min: commonConfig.yAxisMin,
       max: commonConfig.yAxisMax,
-      axisLabel: {
-        color: commonConfig.legendFontColor,
-        fontSize: commonConfig.legendFontSize
-      },
-      inverse: commonConfig.yAxisReverse
+      axisLabel: commonConfig.yAxisLabelStyle,
+      inverse: commonConfig.yAxisReverse,
+      nameTextStyle: commonConfig.yAxisNameTextStyle,
+      axisLine: commonConfig.yAxisLineStyle,
+      axisTick: commonConfig.yAxisTickStyle,
+      splitLine: commonConfig.yAxisSplitLineStyle
     }
 
   const option = {
@@ -99,8 +104,13 @@ const generateOption = () => {
       subtextStyle: commonConfig.subtextStyle, 
       textStyle: commonConfig.textStyle,
       left: commonConfig.titleAlign, 
-      top: 0,
-      padding: commonConfig.titlePadding
+      top: commonConfig.titleTop,
+      bottom: commonConfig.titleBottom,
+      padding: commonConfig.titlePadding,
+      backgroundColor: commonConfig.titleBackgroundColor || 'transparent',
+      borderColor: commonConfig.titleBorderColor || 'transparent',
+      borderWidth: commonConfig.titleBorderWidth,
+      borderRadius: commonConfig.titleBorderRadius
     },
     tooltip: {},
     legend: {

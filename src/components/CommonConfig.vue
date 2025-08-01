@@ -1,7 +1,6 @@
 <script setup>
 import { reactive, watch } from 'vue'
 import CodeDialog from '@/components/dialogs/CodeDialog.vue'
-import { te } from 'element-plus/es/locales.mjs'
 
 const emit = defineEmits(['update'])
 
@@ -26,6 +25,16 @@ const showDialog = reactive({
   legendItemStyle: false,
 
   xAxisLabelStyle: false,
+  xAxisNameTextStyle: false,
+  xAxisLineStyle: false,
+  xAxisTickStyle: false,
+  xAxisSplitLineStyle: false,
+
+  yAxisLabelStyle: false,
+  yAxisNameTextStyle: false,
+  yAxisLineStyle: false,
+  yAxisTickStyle: false,
+  yAxisSplitLineStyle: false,
 
 })
 
@@ -38,6 +47,16 @@ const code = reactive({
   legendItemStyle: '',
 
   xAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+  xAxisNameTextStyle: 'return { color: "#333", fontSize: 14 }',
+  xAxisLineStyle: 'return { show: false }',
+  xAxisTickStyle: 'return { show: false }',
+  xAxisSplitLineStyle: 'return { show: false }',
+
+  yAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+  yAxisNameTextStyle: 'return { color: "#333", fontSize: 14 }',
+  yAxisLineStyle: 'return { show: false }',
+  yAxisTickStyle: 'return { show: false }',
+  yAxisSplitLineStyle: 'return { show: true }',
 
 })
 
@@ -47,10 +66,16 @@ const config = reactive({
   titleShow: true,
   title: '标题',
   textStyle: {},
-  titleAlign: 'left',
-  titlePadding: 10,
   subtext: '',
   subtextStyle: {},
+  titleAlign: 'left',
+  titlePadding: 10,
+  titleTop: 0,
+  titleBottom: 0,
+  titleBackgroundColor: '',
+  titleBorderColor: '',
+  titleBorderWidth: 0,
+  titleBorderRadius: 0,
 
   // 图例配置
   legendShow: true,
@@ -85,6 +110,10 @@ const config = reactive({
   xAxisMax: null,
   xAxisReverse: false,
   xAxisLabelStyle: {},
+  xAxisNameTextStyle: {},
+  xAxisLineStyle: {},
+  xAxisTickStyle: {},
+  xAxisSplitLineStyle: {},
 
   // y坐标轴配置
   yAxisShow: true,
@@ -137,8 +166,13 @@ const formGroups = [
           { label: '右对齐', value: 'right' }
         ]
       },
+      { type: 'input', label: '上边距', prop: 'titleTop' },
+      { type: 'input', label: '下边距', prop: 'titleBottom' },
       { type: 'input-number', label: '内边距', prop: 'titlePadding' },
-
+      { type: 'color-picker', label: '背景颜色', prop: 'titleBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'titleBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'titleBorderWidth' },
+      { type: 'input-number', label: '边框圆角', prop: 'titleBorderRadius' }
     ]
   },
   {
@@ -244,11 +278,43 @@ const formGroups = [
       { type: 'switch', label: '反转x轴', prop: 'xAxisReverse' },
       {
         type: 'custom',
-        label: '刻度标签',
+        label: '名称样式',
+        key: 'xAxisNameTextStyle',
+        prop: 'xAxisNameTextStyle',
+        dialogTitle: 'x轴名称样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '刻度标签样式',
         key: 'xAxisLabelStyle',
         prop: 'xAxisLabelStyle',
         dialogTitle: 'x轴刻度标签样式',
         placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '轴线样式',
+        key: 'xAxisLineStyle',
+        prop: 'xAxisLineStyle',
+        dialogTitle: 'x轴轴线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '刻度线样式',
+        key: 'xAxisTickStyle',
+        prop: 'xAxisTickStyle',
+        dialogTitle: 'x轴刻度线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '分割线样式',
+        key: 'xAxisSplitLineStyle',
+        prop: 'xAxisSplitLineStyle',
+        dialogTitle: 'x轴分割线样式',
+        placeholder: '如：return { show: false }',
       }
     ]
   },
@@ -278,7 +344,47 @@ const formGroups = [
       },
       { type: 'input-number', label: '刻度最小值', prop: 'yAxisMin' },
       { type: 'input-number', label: '刻度最大值', prop: 'yAxisMax' },
-      { type: 'switch', label: '反转y轴', prop: 'yAxisReverse' }
+      { type: 'switch', label: '反转y轴', prop: 'yAxisReverse' },
+      {
+        type: 'custom',
+        label: '名称样式',
+        key: 'yAxisNameTextStyle',
+        prop: 'yAxisNameTextStyle',
+        dialogTitle: 'y轴名称样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '刻度标签样式',
+        key: 'yAxisLabelStyle',
+        prop: 'yAxisLabelStyle',
+        dialogTitle: 'y轴刻度标签样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '轴线样式',
+        key: 'yAxisLineStyle',
+        prop: 'yAxisLineStyle',
+        dialogTitle: 'y轴轴线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '刻度线样式',
+        key: 'yAxisTickStyle',
+        prop: 'yAxisTickStyle',
+        dialogTitle: 'y轴刻度线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '分割线样式',
+        key: 'yAxisSplitLineStyle',
+        prop: 'yAxisSplitLineStyle',
+        dialogTitle: 'y轴分割线样式',
+        placeholder: '如：return { show: true }',
+      }
     ]
   }
 ]
