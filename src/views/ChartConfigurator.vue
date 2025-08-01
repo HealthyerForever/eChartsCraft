@@ -112,7 +112,17 @@ const generateOption = () => {
       borderWidth: commonConfig.titleBorderWidth,
       borderRadius: commonConfig.titleBorderRadius
     },
-    tooltip: {},
+    tooltip: {
+      show: commonConfig.tooltipShow,
+      trigger: commonConfig.tooltipTrigger,
+      triggerOn: commonConfig.tooltipTriggerOn,
+      backgroundColor: commonConfig.tooltipBackgroundColor,
+      borderColor: commonConfig.tooltipBorderColor,
+      borderWidth: commonConfig.tooltipBorderWidth,
+      padding: commonConfig.tooltipPadding,
+      textStyle: commonConfig.tooltipTextStyle,
+      formatter: commonConfig.tooltipFormatter,
+    },
     legend: {
       show: commonConfig.legendShow,
       data: chartData.series.map(s => s.name),
@@ -137,6 +147,15 @@ const generateOption = () => {
       borderColor: commonConfig.gridBorderColor,
       borderWidth: commonConfig.gridBorderWidth,
       backgroundColor: commonConfig.gridBackgroundColor
+    },
+    axisPointer: {
+      show: commonConfig.axisPointerShow,
+      type: commonConfig.axisPointerType,
+      triggerOn: commonConfig.axisPointerTriggerOn,
+      label: commonConfig.axisPointerLabelStyle,
+      lineStyle: commonConfig.axisPointerLineStyle,
+      shadowStyle: commonConfig.axisPointerShadowStyle,
+      handle: commonConfig.axisPointerHandleStyle
     },
     backgroundColor: commonConfig.backgroundColor,
   }

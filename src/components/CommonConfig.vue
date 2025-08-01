@@ -13,6 +13,8 @@ const showGroup = reactive({
   grid: false,
   xAxis: false,
   yAxis: false,
+  tooltip: false,
+  axisPointer: false,
 })
 
 // 代码弹窗相关
@@ -36,6 +38,12 @@ const showDialog = reactive({
   yAxisTickStyle: false,
   yAxisSplitLineStyle: false,
 
+  tooltipTextStyle: false,
+
+  axisPointerLabelStyle: false,
+  axisPointerLineStyle: false,
+  axisPointerShadowStyle: false,
+  axisPointerHandleStyle: false
 })
 
 const code = reactive({
@@ -58,11 +66,17 @@ const code = reactive({
   yAxisTickStyle: 'return { show: false }',
   yAxisSplitLineStyle: 'return { show: true }',
 
+  tooltipTextStyle: '',
+
+  axisPointerLabelStyle: 'return { color: "#fff", fontSize: 12 }',
+  axisPointerLineStyle: 'return { color: "#ccc", width: 1, type: "solid" }',
+  axisPointerShadowStyle: 'return { color: "rgba(150,150,150,0.3)" }',
+  axisPointerHandleStyle: 'return { show: false }'
 })
 
 // 配置对象
 const config = reactive({
-  // 标题配置
+  // #region 标题配置
   titleShow: true,
   title: '标题',
   textStyle: {},
@@ -76,8 +90,9 @@ const config = reactive({
   titleBorderColor: '',
   titleBorderWidth: 0,
   titleBorderRadius: 0,
+  // #endregion
 
-  // 图例配置
+  // #region 图例配置
   legendShow: true,
   legendPosition: 'right',
   legendPadding: 5,
@@ -92,16 +107,18 @@ const config = reactive({
   legendTextStyle: {},
   legendLineStyle: {},
   legendItemStyle: {},
+  // #endregion
 
-  // 坐标系配置
+  // #region 坐标系配置
   gridShow: false,
   gridWidth: null,
   gridHeight: null,
   gridBorderColor: '#ccc',
   gridBorderWidth: 1,
   gridBackgroundColor: 'transparent',
+  // #endregion
 
-  // x坐标轴配置
+  // #region x坐标轴配置
   xAxisShow: true,
   xAxisTitle: '',
   xAxisPosition: 'bottom',
@@ -114,8 +131,9 @@ const config = reactive({
   xAxisLineStyle: {},
   xAxisTickStyle: {},
   xAxisSplitLineStyle: {},
+  // #endregion
 
-  // y坐标轴配置
+  // #region y坐标轴配置
   yAxisShow: true,
   yAxisTitle: '',
   yAxisPosition: 'left',
@@ -123,10 +141,39 @@ const config = reactive({
   yAxisMin: null,
   yAxisMax: null,
   yAxisReverse: false,
+  yAxisLabelStyle: {},
+  yAxisNameTextStyle: {},
+  yAxisLineStyle: {},
+  yAxisTickStyle: {},
+  yAxisSplitLineStyle: {},
+  // #endregion
 
-  // 全局配置
+  // #region 提示框配置
+  tooltipShow: true,
+  tooltipTrigger: 'item',
+  tooltipTriggerOn: 'mousemove|click',
+  tooltipBackgroundColor: '#fff',
+  tooltipBorderColor: '#333',
+  tooltipBorderWidth: 0,
+  tooltipPadding: 5,
+  tooltipTextStyle: {},
+  tooltipFormatter: '',
+  // #endregion
+
+  // #region 坐标轴指示器配置
+  axisPointerShow: false,
+  axisPointerType: 'line',
+  axisPointerTriggerOn: 'mousemove|click',
+  axisPointerLabelStyle: {},
+  axisPointerLineStyle: {},
+  axisPointerShadowStyle: {},
+  axisPointerHandleStyle: {},
+  // #endregion
+
+  // #region 全局配置
   backgroundColor: '',
   darkMode: false
+  // #endregion
 })
 
 // 配置驱动表单项
@@ -386,7 +433,104 @@ const formGroups = [
         placeholder: '如：return { show: true }',
       }
     ]
-  }
+  },
+  {
+    key: 'tooltip',
+    label: '提示框',
+    show: () => config.tooltipShow,
+    toggle: () => showGroup.tooltip = !showGroup.tooltip,
+    sync: () => showGroup.tooltip = config.tooltipShow,
+    expanded: () => showGroup.tooltip,
+    items: [
+      { type: 'switch', label: '提示框', prop: 'tooltipShow' },
+      {
+        type: 'select', label: '触发方式', prop: 'tooltipTrigger',
+        options: [
+          { label: '鼠标悬停', value: 'item' },
+          { label: '坐标轴触发', value: 'axis' },
+        ]
+      },
+      {
+        type: 'select', label: '触发时机', prop: 'tooltipTriggerOn',
+        options: [
+          { label: '鼠标移动或点击', value: 'mousemove|click' },
+          { label: '鼠标点击', value: 'click' },
+          { label: '鼠标移动', value: 'mousemove' }
+        ]
+      },
+      { type: 'color-picker', label: '背景颜色', prop: 'tooltipBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'tooltipBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'tooltipBorderWidth' },
+      { type: 'input-number', label: '内边距', prop: 'tooltipPadding' },
+      { type: 'input', label: '格式字符串', prop: 'tooltipFormatter' },
+      {
+        type: 'custom',
+        label: '文本样式',
+        key: 'tooltipTextStyle',
+        prop: 'tooltipTextStyle',
+        dialogTitle: '提示框文本样式',
+        placeholder: '如：return { color: "#fff", fontSize: 12 }',
+      }
+    ]
+  },
+  {
+    key: 'axisPointer',
+    label: '指示器',
+    show: () => config.axisPointerShow,
+    toggle: () => showGroup.axisPointer = !showGroup.axisPointer,
+    sync: () => showGroup.axisPointer = config.axisPointerShow,
+    expanded: () => showGroup.axisPointer,
+    items: [
+      { type: 'switch', label: '显示指示器', prop: 'axisPointerShow' },
+      {
+        type: 'select', label: '指示器类型', prop: 'axisPointerType',
+        options: [
+          { label: '线型', value: 'line' },
+          { label: '阴影型', value: 'shadow' }
+        ]
+      },
+      {
+        type: 'select', label: '触发方式', prop: 'axisPointerTriggerOn',
+        options: [
+          { label: '鼠标移动或点击', value: 'mousemove|click' },
+          { label: '鼠标点击', value: 'click' },
+          { label: '鼠标移动', value: 'mousemove' }
+        ]
+      },
+      {
+        type: 'custom',
+        label: '标签样式',
+        key: 'axisPointerLabelStyle',
+        prop: 'axisPointerLabelStyle',
+        dialogTitle: '指示器标签样式',
+        placeholder: '如：return { color: "#fff", fontSize: 12 }',
+      },
+      {
+        type: 'custom',
+        label: '线条样式',
+        key: 'axisPointerLineStyle',
+        prop: 'axisPointerLineStyle',
+        dialogTitle: '指示器线条样式',
+        placeholder: '如：return { color: "#333", width: 1, type: "solid" }',
+      },
+      {
+        type: 'custom',
+        label: '阴影样式',
+        key: 'axisPointerShadowStyle',
+        prop: 'axisPointerShadowStyle',
+        dialogTitle: '指示器阴影样式',
+        placeholder: '如：return { color: "rgba(150,150,150,0.3)" }',
+      },
+      {
+        type: 'custom',
+        label: '手柄样式',
+        key: 'axisPointerHandleStyle',
+        prop: 'axisPointerHandleStyle',
+        dialogTitle: '指示器手柄样式',
+        placeholder: '如：return { show: false }',
+      }
+    ]
+  },
 ]
 
 const updateCommon = () => {
