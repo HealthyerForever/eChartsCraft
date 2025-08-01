@@ -16,8 +16,13 @@ const showGroup = reactive({
 })
 
 // 代码弹窗相关
-const showAxisLabelDialog = ref(false)
-const axisLabelCode = ref('return { color: "#333", fontSize: 12 }')
+const showDialog = reactive({
+  xAxisLabel: false,
+})
+
+const code = reactive({
+  xAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+})
 
 // 配置对象
 const config = reactive({
@@ -236,7 +241,15 @@ const formGroups = [
       { type: 'input-number', label: '刻度最大值', prop: 'xAxisMax' },
       { type: 'switch', label: '反转x轴', prop: 'xAxisReverse' },
       // 复杂项：自定义代码弹窗
-      { type: 'custom', customKey: 'xAxisLabelCustom' }
+      { 
+        type: 'custom', 
+        label: '刻度标签',
+        dialogKey: 'xAxisLabel',
+        codeKey: 'xAxisLabelStyle',
+        prop: 'xAxisLabelStyle', 
+        dialogTitle: 'x轴刻度标签样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      }
     ]
   },
   {
@@ -275,14 +288,16 @@ const updateCommon = () => {
 }
 
 // 监听代码变化，更新配置
-function useCodeToConfig(codeRef, targetObj, key, updateFn) {
+function useCodeToConfig(codeKey, targetObj, prop, updateFn) {
   watchEffect(() => {
-    if (codeRef.value) {
+    const codeRef = code[codeKey]
+    if (codeRef) {
       try {
-        const fn = new Function(codeRef.value)
-        targetObj[key] = fn()
+        //console.log(`Evaluating code for ${prop}:`, codeRef)
+        const fn = new Function(codeRef)
+        targetObj[prop] = fn()
       } catch (e) {
-        targetObj[key] = {}
+        targetObj[prop] = {}
       }
       updateFn && updateFn()
     }
@@ -301,7 +316,14 @@ function getComponentType(type) {
   }
 }
 
-useCodeToConfig(axisLabelCode, config, 'xAxisLabelStyle', updateCommon)
+//自动为所有自定义项设置监听
+formGroups.forEach(group => {
+  group.items.forEach(item => {
+    if (item.type === 'custom') {
+      useCodeToConfig(item.codeKey, config, item.prop, updateCommon);
+    }
+  });
+});
 
 </script>
 
@@ -359,9 +381,6 @@ useCodeToConfig(axisLabelCode, config, 'xAxisLabelStyle', updateCommon)
                                     <el-option :label="opt.label" :value="opt.value" />
                                   </template>
                                 </template>
-                                <!-- <template v-if="sub.type === 'select'" v-for="opt in sub.options" :key="opt.value">
-                                  <el-option :label="opt.label" :value="opt.value" />
-                                </template> -->
                               </component>
                             </el-form-item>
                           </template>
@@ -370,12 +389,12 @@ useCodeToConfig(axisLabelCode, config, 'xAxisLabelStyle', updateCommon)
                     </div>
                   </template>
                   <!-- 复杂自定义项 -->
-                  <template v-else-if="item.type === 'custom' && item.customKey === 'xAxisLabelCustom'">
-                    <el-form-item label="刻度标签配置">
-                      <el-button type="primary" @click="showAxisLabelDialog = true">自定义</el-button>
-                      <CodeDialog v-model="axisLabelCode" :visible="showAxisLabelDialog" title="自定义x轴刻度标签样式"
-                        placeholder="如：return { color: '#f00', fontSize: 16 }"
-                        @update:visible="v => showAxisLabelDialog = v" />
+                  <template v-else-if="item.type === 'custom'">
+                    <el-form-item :label="item.label">
+                      <el-button type="primary" size="small" @click="showDialog[item.dialogKey] = true">自定义</el-button>
+                      <CodeDialog v-model="code[item.codeKey]" :visible="showDialog[item.dialogKey]"
+                        :title="item.dialogTitle" :placeholder="item.placeholder"
+                        @update:visible="v => showDialog[item.dialogKey] = v" />
                     </el-form-item>
                   </template>
                 </template>
