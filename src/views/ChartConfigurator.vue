@@ -73,9 +73,7 @@ const generateOption = () => {
       position: commonConfig.xAxisPosition,
       min: commonConfig.xAxisMin,
       max: commonConfig.xAxisMax,
-      axisLabel: {
-        ...commonConfig.xAxisLabelStyle,
-      },
+      axisLabel: commonConfig.xAxisLabelStyle,
       inverse: commonConfig.xAxisReverse
     }
 
@@ -98,15 +96,9 @@ const generateOption = () => {
       show: commonConfig.titleShow,
       text: commonConfig.title,
       subtext: commonConfig.subtext,
-      subtextStyle: {
-        ...commonConfig.subtextStyle, 
-      },
-      textStyle: {
-        color: commonConfig.titleColor,
-        fontSize: commonConfig.titleFontSize,
-        fontWeight: commonConfig.titleFontWeight,
-      },
-      left: commonConfig.titleAlign, // 'left' | 'center' | 'right'
+      subtextStyle: commonConfig.subtextStyle, 
+      textStyle: commonConfig.textStyle,
+      left: commonConfig.titleAlign, 
       top: 0,
       padding: commonConfig.titlePadding
     },
@@ -124,11 +116,9 @@ const generateOption = () => {
       align: commonConfig.legendAlign,
       padding: commonConfig.legendPadding,
       itemGap: commonConfig.legendItemGap,
-      textStyle: {
-        color: commonConfig.legendFontColor,
-        fontSize: commonConfig.legendFontSize,
-        fontWeight: commonConfig.legendFontWeight
-      }
+      textStyle: commonConfig.legendTextStyle,
+      lineStyle: commonConfig.legendLineStyle,
+      itemStyle: commonConfig.legendItemStyle
     },
     grid: {
       show: commonConfig.gridShow,

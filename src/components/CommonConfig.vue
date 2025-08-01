@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, watch } from 'vue'
 import CodeDialog from '@/components/dialogs/CodeDialog.vue'
+import { te } from 'element-plus/es/locales.mjs'
 
 const emit = defineEmits(['update'])
 
@@ -17,13 +18,27 @@ const showGroup = reactive({
 
 // 代码弹窗相关
 const showDialog = reactive({
+  textStyle: false,
   subtextStyle: false,
+
+  legendTextStyle: false,
+  legnedLineStyle: false,
+  legendItemStyle: false,
+
   xAxisLabelStyle: false,
+
 })
 
 const code = reactive({
+  textStyle: 'return { color: "#000", fontSize: 18 }',
   subtextStyle: 'return { color: "#000", fontSize: 16 }',
+
+  legendTextStyle: 'return { color: "#000", fontSize: 12 }',
+  legendLineStyle: '',
+  legendItemStyle: '',
+
   xAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+
 })
 
 // 配置对象
@@ -31,9 +46,7 @@ const config = reactive({
   // 标题配置
   titleShow: true,
   title: '标题',
-  titleColor: '#333',
-  titleFontSize: 20,
-  titleFontWeight: 'normal',
+  textStyle: {},
   titleAlign: 'left',
   titlePadding: 10,
   subtext: '',
@@ -51,9 +64,9 @@ const config = reactive({
   legendBackgroundColor: '#fff',
   legendBorderColor: '#ccc',
   legendBorderWidth: 0,
-  legendFontColor: '#333',
-  legendFontSize: 12,
-  legendFontWeight: 'normal',
+  legendTextStyle: {},
+  legendLineStyle: {},
+  legendItemStyle: {},
 
   // 坐标系配置
   gridShow: false,
@@ -99,16 +112,22 @@ const formGroups = [
     items: [
       { type: 'switch', label: '标题', prop: 'titleShow' },
       { type: 'input', label: '主标题', prop: 'title' },
-      { type: 'input', label: '副标题', prop: 'subtext' },
-      { type: 'input-number', label: '字体大小', prop: 'titleFontSize' },
-      { type: 'color-picker', label: '标题颜色', prop: 'titleColor' },
       {
-        type: 'select', label: '标题粗细', prop: 'titleFontWeight',
-        options: [
-          { label: '正常', value: 'normal' },
-          { label: '粗体', value: 'bold' },
-          { label: '细体', value: 'lighter' }
-        ]
+        type: 'custom',
+        label: '主标题样式',
+        key: 'textStyle',
+        prop: 'textStyle',
+        dialogTitle: '主标题样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      { type: 'input', label: '副标题', prop: 'subtext' },
+      {
+        type: 'custom',
+        label: '副标题样式',
+        key: 'subtextStyle',
+        prop: 'subtextStyle',
+        dialogTitle: '副标题样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
       },
       {
         type: 'select', label: '标题水平对齐', prop: 'titleAlign',
@@ -119,14 +138,7 @@ const formGroups = [
         ]
       },
       { type: 'input-number', label: '内边距', prop: 'titlePadding' },
-      {
-        type: 'custom',
-        label: '副标题样式',
-        key: 'subtextStyle',
-        prop: 'subtextStyle',
-        dialogTitle: '副标题样式',
-        placeholder: '如：return { color: "#f00", fontSize: 16 }',
-      }
+
     ]
   },
   {
@@ -161,26 +173,29 @@ const formGroups = [
       { type: 'color-picker', label: '背景颜色', prop: 'legendBackgroundColor' },
       { type: 'color-picker', label: '边框颜色', prop: 'legendBorderColor' },
       { type: 'input-number', label: '边框宽度', prop: 'legendBorderWidth' },
-      // 字体样式分组
       {
-        type: 'group',
-        label: '字体样式',
-        key: 'legendFont',
-        show: () => true,
-        toggle: () => showGroup.legendFont = !showGroup.legendFont,
-        expanded: () => showGroup.legendFont,
-        items: [
-          { type: 'color-picker', label: '字体颜色', prop: 'legendFontColor' },
-          { type: 'input-number', label: '字体大小', prop: 'legendFontSize' },
-          {
-            type: 'select', label: '字体粗细', prop: 'legendFontWeight',
-            options: [
-              { label: '正常', value: 'normal' },
-              { label: '粗体', value: 'bold' },
-              { label: '细体', value: 'lighter' }
-            ]
-          }
-        ]
+        type: 'custom',
+        label: '图例文本样式',
+        key: 'legendTextStyle',
+        prop: 'legendTextStyle',
+        dialogTitle: '图例文本样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '图例线条样式',
+        key: 'legendLineStyle',
+        prop: 'legendLineStyle',
+        dialogTitle: '图例线条样式',
+        placeholder: '如：return { color: "#ccc", width: 1, type: "solid" }',
+      },
+      {
+        type: 'custom',
+        label: '图例图形样式',
+        key: 'legendItemStyle',
+        prop: 'legendItemStyle',
+        dialogTitle: '图例图形样式',
+        placeholder: '如：return { color: "#000", borderColor: "#000", borderWidth: 1 }',
       }
     ]
   },
@@ -275,7 +290,7 @@ const updateCommon = () => {
 // 监听代码变化，自动更新配置
 function useCodeToConfig(codeKey, targetObj, prop, updateFn) {
   watch(
-    () => code[codeKey], 
+    () => code[codeKey],
     (newValue) => {
       if (newValue) {
         try {
@@ -287,7 +302,7 @@ function useCodeToConfig(codeKey, targetObj, prop, updateFn) {
         updateFn?.();
       }
     },
-    { immediate: true }  
+    { immediate: true }
   );
 }
 
@@ -350,7 +365,7 @@ formGroups.forEach(group => {
                   <!-- 自定义项 -->
                   <template v-else-if="item.type === 'custom'">
                     <el-form-item :label="item.label">
-                      <el-button type="primary" size="small" @click="showDialog[item.key] = true">自定义</el-button>
+                      <el-button type="primary" @click="showDialog[item.key] = true">自定义</el-button>
                       <CodeDialog v-model="code[item.key]" :visible="showDialog[item.key]" :title="item.dialogTitle"
                         :placeholder="item.placeholder" @update:visible="v => showDialog[item.key] = v" />
                     </el-form-item>

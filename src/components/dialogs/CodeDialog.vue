@@ -32,7 +32,7 @@ const handleOk = () => {
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" :title="title" width="500px" draggable="true" center="true">
+  <el-dialog v-model="dialogVisible" :title="title" width="500px" :draggable="true" :center="true">
     <el-input
       type="textarea"
       v-model="code"
