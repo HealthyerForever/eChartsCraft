@@ -21,62 +21,7 @@ const chartData = reactive({
 })
 
 const commonConfig = reactive({
-  // 标题配置
-  titleShow: true,
-  title: '标题',
-  titleColor: '#333',
-  titleFontSize: 20,
-  titleFontWeight: 'normal',
-  titleAlign: 'left',
-  titlePadding: 10,
-  subtitle: '',
-  subtitleColor: '#666',
-  subtitleFontSize: 14,
-  subtitleFontWeight: 'normal',
-
-  // 图例配置
-  legendShow: true,
-  legendPosition: 'right',
-  legendPadding: 5,
-  legendItemGap: 10,
-  legendWidth: 20,
-  legendHeight: 10,
-  legendAlign: 'right',
-  legendItemWidth: 25,
-  legendBackgroundColor: '#fff',
-  legendBorderColor: '#ccc',
-  legendBorderWidth: 0,
-  legendFontColor: '#333',
-  legendFontSize: 12,
-  legendFontWeight: 'normal',
-
-  // 坐标系配置
-  gridShow: false,
-  gridWidth: null,
-  gridHeight: null,
-  gridBorderColor: '#ccc',
-  gridBorderWidth: 1,
-  gridBackgroundColor: 'transparent',
-
-  // 坐标轴配置
-  xAxisShow: true,
-  xAxisTitle: '',
-  xAxisPosition: 'bottom',
-  xAxisType: 'category',
-  xAxisMin: null,
-  xAxisMax: null,
-  xAxisReverse: false,
-  xAxisLabelStyle: {},
-  yAxisShow: true,
-  yAxisTitle: '',
-  yAxisPosition: 'left',
-  yAxisType: 'value',
-  yAxisMin: null,
-  yAxisMax: null,
-  yAxisReverse: false,
-
-  backgroundColor: '',
-  darkMode: false
+ 
 })
 
 const advancedConfig = reactive({
@@ -128,10 +73,12 @@ const generateOption = () => {
       position: commonConfig.xAxisPosition,
       min: commonConfig.xAxisMin,
       max: commonConfig.xAxisMax,
-      axisLabel: {
-        ...commonConfig.xAxisLabelStyle,
-      },
-      inverse: commonConfig.xAxisReverse
+      axisLabel: commonConfig.xAxisLabelStyle,
+      inverse: commonConfig.xAxisReverse,
+      nameTextStyle: commonConfig.xAxisNameTextStyle,
+      axisLine: commonConfig.xAxisLineStyle,
+      axisTick: commonConfig.xAxisTickStyle,
+      splitLine: commonConfig.xAxisSplitLineStyle
     }
 
   const baseYAxis = {
@@ -141,11 +88,12 @@ const generateOption = () => {
       position: commonConfig.yAxisPosition,
       min: commonConfig.yAxisMin,
       max: commonConfig.yAxisMax,
-      axisLabel: {
-        color: commonConfig.legendFontColor,
-        fontSize: commonConfig.legendFontSize
-      },
-      inverse: commonConfig.yAxisReverse
+      axisLabel: commonConfig.yAxisLabelStyle,
+      inverse: commonConfig.yAxisReverse,
+      nameTextStyle: commonConfig.yAxisNameTextStyle,
+      axisLine: commonConfig.yAxisLineStyle,
+      axisTick: commonConfig.yAxisTickStyle,
+      splitLine: commonConfig.yAxisSplitLineStyle
     }
 
   const option = {
@@ -153,21 +101,28 @@ const generateOption = () => {
       show: commonConfig.titleShow,
       text: commonConfig.title,
       subtext: commonConfig.subtext,
-      subtextStyle: {
-        color: commonConfig.subtitleColor,
-        fontSize: commonConfig.subtitleFontSize,
-        fontWeight: commonConfig.subtitleFontWeight
-      },
-      textStyle: {
-        color: commonConfig.titleColor,
-        fontSize: commonConfig.titleFontSize,
-        fontWeight: commonConfig.titleFontWeight,
-      },
-      left: commonConfig.titleAlign, // 'left' | 'center' | 'right'
-      top: 0,
-      padding: commonConfig.titlePadding
+      subtextStyle: commonConfig.subtextStyle, 
+      textStyle: commonConfig.textStyle,
+      left: commonConfig.titleAlign, 
+      top: commonConfig.titleTop,
+      bottom: commonConfig.titleBottom,
+      padding: commonConfig.titlePadding,
+      backgroundColor: commonConfig.titleBackgroundColor || 'transparent',
+      borderColor: commonConfig.titleBorderColor || 'transparent',
+      borderWidth: commonConfig.titleBorderWidth,
+      borderRadius: commonConfig.titleBorderRadius
     },
-    tooltip: {},
+    tooltip: {
+      show: commonConfig.tooltipShow,
+      trigger: commonConfig.tooltipTrigger,
+      triggerOn: commonConfig.tooltipTriggerOn,
+      backgroundColor: commonConfig.tooltipBackgroundColor,
+      borderColor: commonConfig.tooltipBorderColor,
+      borderWidth: commonConfig.tooltipBorderWidth,
+      padding: commonConfig.tooltipPadding,
+      textStyle: commonConfig.tooltipTextStyle,
+      formatter: commonConfig.tooltipFormatter,
+    },
     legend: {
       show: commonConfig.legendShow,
       data: chartData.series.map(s => s.name),
@@ -181,11 +136,9 @@ const generateOption = () => {
       align: commonConfig.legendAlign,
       padding: commonConfig.legendPadding,
       itemGap: commonConfig.legendItemGap,
-      textStyle: {
-        color: commonConfig.legendFontColor,
-        fontSize: commonConfig.legendFontSize,
-        fontWeight: commonConfig.legendFontWeight
-      }
+      textStyle: commonConfig.legendTextStyle,
+      lineStyle: commonConfig.legendLineStyle,
+      itemStyle: commonConfig.legendItemStyle
     },
     grid: {
       show: commonConfig.gridShow,
@@ -194,6 +147,15 @@ const generateOption = () => {
       borderColor: commonConfig.gridBorderColor,
       borderWidth: commonConfig.gridBorderWidth,
       backgroundColor: commonConfig.gridBackgroundColor
+    },
+    axisPointer: {
+      show: commonConfig.axisPointerShow,
+      type: commonConfig.axisPointerType,
+      triggerOn: commonConfig.axisPointerTriggerOn,
+      label: commonConfig.axisPointerLabelStyle,
+      lineStyle: commonConfig.axisPointerLineStyle,
+      shadowStyle: commonConfig.axisPointerShadowStyle,
+      handle: commonConfig.axisPointerHandleStyle
     },
     backgroundColor: commonConfig.backgroundColor,
   }

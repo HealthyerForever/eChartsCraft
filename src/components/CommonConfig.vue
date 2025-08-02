@@ -1,40 +1,98 @@
 <script setup>
-import { ref, reactive, watchEffect } from 'vue'
+import { reactive, watch } from 'vue'
 import CodeDialog from '@/components/dialogs/CodeDialog.vue'
 
 const emit = defineEmits(['update'])
 
-// 显示/隐藏各个配置区域
-const showTitleAreaConfig = ref(false)
-const showSubtitleAreaConfig = ref(false)
-const showLegendAreaConfig = ref(false)
-const showLegendFontAreaConfig = ref(false)
-const showGridAreaConfig = ref(false)
-const showXAxisAreaConfig = ref(false)
-const showYAxisAreaConfig = ref(false)
+// 折叠控制
+const showGroup = reactive({
+  title: false,
+  subtitle: false,
+  legend: false,
+  legendFont: false,
+  grid: false,
+  xAxis: false,
+  yAxis: false,
+  tooltip: false,
+  axisPointer: false,
+})
 
-// 显示对话框
-const showAxisLabelDialog = ref(false)
+// 代码弹窗相关
+const showDialog = reactive({
+  textStyle: false,
+  subtextStyle: false,
 
-// 自定义代码
-const axisLabelCode = ref('return { color: "#333", fontSize: 12 }')
+  legendTextStyle: false,
+  legnedLineStyle: false,
+  legendItemStyle: false,
+
+  xAxisLabelStyle: false,
+  xAxisNameTextStyle: false,
+  xAxisLineStyle: false,
+  xAxisTickStyle: false,
+  xAxisSplitLineStyle: false,
+
+  yAxisLabelStyle: false,
+  yAxisNameTextStyle: false,
+  yAxisLineStyle: false,
+  yAxisTickStyle: false,
+  yAxisSplitLineStyle: false,
+
+  tooltipTextStyle: false,
+
+  axisPointerLabelStyle: false,
+  axisPointerLineStyle: false,
+  axisPointerShadowStyle: false,
+  axisPointerHandleStyle: false
+})
+
+const code = reactive({
+  textStyle: 'return { color: "#000", fontSize: 18 }',
+  subtextStyle: 'return { color: "#000", fontSize: 16 }',
+
+  legendTextStyle: 'return { color: "#000", fontSize: 12 }',
+  legendLineStyle: '',
+  legendItemStyle: '',
+
+  xAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+  xAxisNameTextStyle: 'return { color: "#333", fontSize: 14 }',
+  xAxisLineStyle: 'return { show: false }',
+  xAxisTickStyle: 'return { show: false }',
+  xAxisSplitLineStyle: 'return { show: false }',
+
+  yAxisLabelStyle: 'return { color: "#333", fontSize: 12 }',
+  yAxisNameTextStyle: 'return { color: "#333", fontSize: 14 }',
+  yAxisLineStyle: 'return { show: false }',
+  yAxisTickStyle: 'return { show: false }',
+  yAxisSplitLineStyle: 'return { show: true }',
+
+  tooltipTextStyle: '',
+
+  axisPointerLabelStyle: 'return { color: "#fff", fontSize: 12 }',
+  axisPointerLineStyle: 'return { color: "#ccc", width: 1, type: "solid" }',
+  axisPointerShadowStyle: 'return { color: "rgba(150,150,150,0.3)" }',
+  axisPointerHandleStyle: 'return { show: false }'
+})
 
 // 配置对象
 const config = reactive({
-    // 标题配置
+  // #region 标题配置
   titleShow: true,
   title: '标题',
-  titleColor: '#333',
-  titleFontSize: 20,
-  titleFontWeight: 'normal',
+  textStyle: {},
+  subtext: '',
+  subtextStyle: {},
   titleAlign: 'left',
   titlePadding: 10,
-  subtitle: '',
-  subtitleColor: '#666',
-  subtitleFontSize: 14,
-  subtitleFontWeight: 'normal',
+  titleTop: 0,
+  titleBottom: 0,
+  titleBackgroundColor: '',
+  titleBorderColor: '',
+  titleBorderWidth: 0,
+  titleBorderRadius: 0,
+  // #endregion
 
-  // 图例配置
+  // #region 图例配置
   legendShow: true,
   legendPosition: 'right',
   legendPadding: 5,
@@ -42,23 +100,28 @@ const config = reactive({
   legendWidth: 20,
   legendHeight: 10,
   legendAlign: 'right',
+  legendWidth: 20,
+  legendHeight: 10,
+  legendAlign: 'auto',
   legendItemWidth: 25,
   legendBackgroundColor: '#fff',
   legendBorderColor: '#ccc',
   legendBorderWidth: 0,
-  legendFontColor: '#333',
-  legendFontSize: 12,
-  legendFontWeight: 'normal',
+  legendTextStyle: {},
+  legendLineStyle: {},
+  legendItemStyle: {},
+  // #endregion
 
-  // 坐标系配置
+  // #region 坐标系配置
   gridShow: false,
   gridWidth: null,
   gridHeight: null,
   gridBorderColor: '#ccc',
   gridBorderWidth: 1,
   gridBackgroundColor: 'transparent',
+  // #endregion
 
-  // 坐标轴配置
+  // #region x坐标轴配置
   xAxisShow: true,
   xAxisTitle: '',
   xAxisPosition: 'bottom',
@@ -67,6 +130,15 @@ const config = reactive({
   xAxisMax: null,
   xAxisReverse: false,
   xAxisLabelStyle: {},
+  xAxisReverse: false,
+  xAxisLabelStyle: {},
+  xAxisNameTextStyle: {},
+  xAxisLineStyle: {},
+  xAxisTickStyle: {},
+  xAxisSplitLineStyle: {},
+  // #endregion
+
+  // #region y坐标轴配置
   yAxisShow: true,
   yAxisTitle: '',
   yAxisPosition: 'left',
@@ -74,320 +146,498 @@ const config = reactive({
   yAxisMin: null,
   yAxisMax: null,
   yAxisReverse: false,
+  yAxisLabelStyle: {},
+  yAxisNameTextStyle: {},
+  yAxisLineStyle: {},
+  yAxisTickStyle: {},
+  yAxisSplitLineStyle: {},
+  // #endregion
 
+  // #region 提示框配置
+  tooltipShow: true,
+  tooltipTrigger: 'item',
+  tooltipTriggerOn: 'mousemove|click',
+  tooltipBackgroundColor: '#fff',
+  tooltipBorderColor: '#333',
+  tooltipBorderWidth: 0,
+  tooltipPadding: 5,
+  tooltipTextStyle: {},
+  tooltipFormatter: '',
+  // #endregion
+
+  // #region 坐标轴指示器配置
+  axisPointerShow: false,
+  axisPointerType: 'line',
+  axisPointerTriggerOn: 'mousemove|click',
+  axisPointerLabelStyle: {},
+  axisPointerLineStyle: {},
+  axisPointerShadowStyle: {},
+  axisPointerHandleStyle: {},
+  // #endregion
+
+  // #region 全局配置
   backgroundColor: '',
   darkMode: false
+  // #endregion
 })
+
+// 配置驱动表单项
+const formGroups = [
+  {
+    key: 'title',
+    label: '标题',
+    show: () => config.titleShow,
+    toggle: () => showGroup.title = !showGroup.title,
+    sync: () => showGroup.title = config.titleShow,
+    expanded: () => showGroup.title,
+    items: [
+      { type: 'switch', label: '标题', prop: 'titleShow' },
+      { type: 'input', label: '主标题', prop: 'title' },
+      {
+        type: 'custom',
+        label: '主标题样式',
+        key: 'textStyle',
+        prop: 'textStyle',
+        dialogTitle: '主标题样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      { type: 'input', label: '副标题', prop: 'subtext' },
+      {
+        type: 'custom',
+        label: '副标题样式',
+        key: 'subtextStyle',
+        prop: 'subtextStyle',
+        dialogTitle: '副标题样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'select', label: '标题水平对齐', prop: 'titleAlign',
+        options: [
+          { label: '左对齐', value: 'left' },
+          { label: '居中', value: 'center' },
+          { label: '右对齐', value: 'right' }
+        ]
+      },
+      { type: 'input', label: '上边距', prop: 'titleTop' },
+      { type: 'input', label: '下边距', prop: 'titleBottom' },
+      { type: 'input-number', label: '内边距', prop: 'titlePadding' },
+      { type: 'color-picker', label: '背景颜色', prop: 'titleBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'titleBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'titleBorderWidth' },
+      { type: 'input-number', label: '边框圆角', prop: 'titleBorderRadius' }
+    ]
+  },
+  {
+    key: 'legend',
+    label: '图例',
+    show: () => config.legendShow,
+    toggle: () => showGroup.legend = !showGroup.legend,
+    sync: () => showGroup.legend = config.legendShow,
+    expanded: () => showGroup.legend,
+    items: [
+      { type: 'switch', label: '图例', prop: 'legendShow' },
+      {
+        type: 'select', label: '图例位置', prop: 'legendPosition',
+        options: [
+          { label: '顶部', value: 'top' },
+          { label: '底部', value: 'bottom' },
+          { label: '左侧', value: 'left' },
+          { label: '右侧', value: 'right' }
+        ]
+      },
+      { type: 'input-number', label: '图例内边距', prop: 'legendPadding' },
+      { type: 'input-number', label: '图例间距', prop: 'legendItemGap' },
+      {
+        type: 'select', label: '图例对齐', prop: 'legendAlign',
+        options: [
+          { label: '左对齐', value: 'left' },
+          { label: '右对齐', value: 'right' }
+        ]
+      },
+      { type: 'input-number', label: '图例宽度', prop: 'legendWidth' },
+      { type: 'input-number', label: '图例高度', prop: 'legendHeight' },
+      { type: 'color-picker', label: '背景颜色', prop: 'legendBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'legendBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'legendBorderWidth' },
+      {
+        type: 'custom',
+        label: '图例文本样式',
+        key: 'legendTextStyle',
+        prop: 'legendTextStyle',
+        dialogTitle: '图例文本样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '图例线条样式',
+        key: 'legendLineStyle',
+        prop: 'legendLineStyle',
+        dialogTitle: '图例线条样式',
+        placeholder: '如：return { color: "#ccc", width: 1, type: "solid" }',
+      },
+      {
+        type: 'custom',
+        label: '图例图形样式',
+        key: 'legendItemStyle',
+        prop: 'legendItemStyle',
+        dialogTitle: '图例图形样式',
+        placeholder: '如：return { color: "#000", borderColor: "#000", borderWidth: 1 }',
+      }
+    ]
+  },
+  {
+    key: 'grid',
+    label: '坐标系',
+    show: () => config.gridShow,
+    toggle: () => showGroup.grid = !showGroup.grid,
+    sync: () => showGroup.grid = config.gridShow,
+    expanded: () => showGroup.grid,
+    items: [
+      { type: 'switch', label: '坐标系', prop: 'gridShow' },
+      { type: 'input-number', label: '坐标系宽度', prop: 'gridWidth' },
+      { type: 'input-number', label: '坐标系高度', prop: 'gridHeight' },
+      { type: 'color-picker', label: '背景颜色', prop: 'gridBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'gridBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'gridBorderWidth' }
+    ]
+  },
+  {
+    key: 'xAxis',
+    label: 'x轴',
+    show: () => config.xAxisShow,
+    toggle: () => showGroup.xAxis = !showGroup.xAxis,
+    sync: () => showGroup.xAxis = config.xAxisShow,
+    expanded: () => showGroup.xAxis,
+    items: [
+      { type: 'switch', label: 'x轴', prop: 'xAxisShow' },
+      { type: 'input', label: 'x轴标题', prop: 'xAxisTitle' },
+      {
+        type: 'select', label: 'x轴位置', prop: 'xAxisPosition',
+        options: [
+          { label: '底部', value: 'bottom' },
+          { label: '顶部', value: 'top' }
+        ]
+      },
+      {
+        type: 'select', label: 'x轴类型', prop: 'xAxisType',
+        options: [
+          { label: '类目轴', value: 'category' },
+          { label: '数值轴', value: 'value' }
+        ]
+      },
+      { type: 'input-number', label: '刻度最小值', prop: 'xAxisMin' },
+      { type: 'input-number', label: '刻度最大值', prop: 'xAxisMax' },
+      { type: 'switch', label: '反转x轴', prop: 'xAxisReverse' },
+      {
+        type: 'custom',
+        label: '名称样式',
+        key: 'xAxisNameTextStyle',
+        prop: 'xAxisNameTextStyle',
+        dialogTitle: 'x轴名称样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '刻度标签样式',
+        key: 'xAxisLabelStyle',
+        prop: 'xAxisLabelStyle',
+        dialogTitle: 'x轴刻度标签样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '轴线样式',
+        key: 'xAxisLineStyle',
+        prop: 'xAxisLineStyle',
+        dialogTitle: 'x轴轴线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '刻度线样式',
+        key: 'xAxisTickStyle',
+        prop: 'xAxisTickStyle',
+        dialogTitle: 'x轴刻度线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '分割线样式',
+        key: 'xAxisSplitLineStyle',
+        prop: 'xAxisSplitLineStyle',
+        dialogTitle: 'x轴分割线样式',
+        placeholder: '如：return { show: false }',
+      }
+    ]
+  },
+  {
+    key: 'yAxis',
+    label: 'y轴',
+    show: () => config.yAxisShow,
+    toggle: () => showGroup.yAxis = !showGroup.yAxis,
+    sync: () => showGroup.yAxis = config.yAxisShow,
+    expanded: () => showGroup.yAxis,
+    items: [
+      { type: 'switch', label: 'y轴', prop: 'yAxisShow' },
+      { type: 'input', label: 'y轴标题', prop: 'yAxisTitle' },
+      {
+        type: 'select', label: 'y轴位置', prop: 'yAxisPosition',
+        options: [
+          { label: '左边', value: 'left' },
+          { label: '右边', value: 'right' }
+        ]
+      },
+      {
+        type: 'select', label: 'y轴类型', prop: 'yAxisType',
+        options: [
+          { label: '类目轴', value: 'category' },
+          { label: '数值轴', value: 'value' }
+        ]
+      },
+      { type: 'input-number', label: '刻度最小值', prop: 'yAxisMin' },
+      { type: 'input-number', label: '刻度最大值', prop: 'yAxisMax' },
+      { type: 'switch', label: '反转y轴', prop: 'yAxisReverse' },
+      {
+        type: 'custom',
+        label: '名称样式',
+        key: 'yAxisNameTextStyle',
+        prop: 'yAxisNameTextStyle',
+        dialogTitle: 'y轴名称样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '刻度标签样式',
+        key: 'yAxisLabelStyle',
+        prop: 'yAxisLabelStyle',
+        dialogTitle: 'y轴刻度标签样式',
+        placeholder: '如：return { color: "#f00", fontSize: 16 }',
+      },
+      {
+        type: 'custom',
+        label: '轴线样式',
+        key: 'yAxisLineStyle',
+        prop: 'yAxisLineStyle',
+        dialogTitle: 'y轴轴线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '刻度线样式',
+        key: 'yAxisTickStyle',
+        prop: 'yAxisTickStyle',
+        dialogTitle: 'y轴刻度线样式',
+        placeholder: '如：return { show: false }',
+      },
+      {
+        type: 'custom',
+        label: '分割线样式',
+        key: 'yAxisSplitLineStyle',
+        prop: 'yAxisSplitLineStyle',
+        dialogTitle: 'y轴分割线样式',
+        placeholder: '如：return { show: true }',
+      }
+    ]
+  },
+  {
+    key: 'tooltip',
+    label: '提示框',
+    show: () => config.tooltipShow,
+    toggle: () => showGroup.tooltip = !showGroup.tooltip,
+    sync: () => showGroup.tooltip = config.tooltipShow,
+    expanded: () => showGroup.tooltip,
+    items: [
+      { type: 'switch', label: '提示框', prop: 'tooltipShow' },
+      {
+        type: 'select', label: '触发方式', prop: 'tooltipTrigger',
+        options: [
+          { label: '鼠标悬停', value: 'item' },
+          { label: '坐标轴触发', value: 'axis' },
+        ]
+      },
+      {
+        type: 'select', label: '触发时机', prop: 'tooltipTriggerOn',
+        options: [
+          { label: '鼠标移动或点击', value: 'mousemove|click' },
+          { label: '鼠标点击', value: 'click' },
+          { label: '鼠标移动', value: 'mousemove' }
+        ]
+      },
+      { type: 'color-picker', label: '背景颜色', prop: 'tooltipBackgroundColor' },
+      { type: 'color-picker', label: '边框颜色', prop: 'tooltipBorderColor' },
+      { type: 'input-number', label: '边框宽度', prop: 'tooltipBorderWidth' },
+      { type: 'input-number', label: '内边距', prop: 'tooltipPadding' },
+      { type: 'input', label: '格式字符串', prop: 'tooltipFormatter' },
+      {
+        type: 'custom',
+        label: '文本样式',
+        key: 'tooltipTextStyle',
+        prop: 'tooltipTextStyle',
+        dialogTitle: '提示框文本样式',
+        placeholder: '如：return { color: "#fff", fontSize: 12 }',
+      }
+    ]
+  },
+  {
+    key: 'axisPointer',
+    label: '指示器',
+    show: () => config.axisPointerShow,
+    toggle: () => showGroup.axisPointer = !showGroup.axisPointer,
+    sync: () => showGroup.axisPointer = config.axisPointerShow,
+    expanded: () => showGroup.axisPointer,
+    items: [
+      { type: 'switch', label: '显示指示器', prop: 'axisPointerShow' },
+      {
+        type: 'select', label: '指示器类型', prop: 'axisPointerType',
+        options: [
+          { label: '线型', value: 'line' },
+          { label: '阴影型', value: 'shadow' }
+        ]
+      },
+      {
+        type: 'select', label: '触发方式', prop: 'axisPointerTriggerOn',
+        options: [
+          { label: '鼠标移动或点击', value: 'mousemove|click' },
+          { label: '鼠标点击', value: 'click' },
+          { label: '鼠标移动', value: 'mousemove' }
+        ]
+      },
+      {
+        type: 'custom',
+        label: '标签样式',
+        key: 'axisPointerLabelStyle',
+        prop: 'axisPointerLabelStyle',
+        dialogTitle: '指示器标签样式',
+        placeholder: '如：return { color: "#fff", fontSize: 12 }',
+      },
+      {
+        type: 'custom',
+        label: '线条样式',
+        key: 'axisPointerLineStyle',
+        prop: 'axisPointerLineStyle',
+        dialogTitle: '指示器线条样式',
+        placeholder: '如：return { color: "#333", width: 1, type: "solid" }',
+      },
+      {
+        type: 'custom',
+        label: '阴影样式',
+        key: 'axisPointerShadowStyle',
+        prop: 'axisPointerShadowStyle',
+        dialogTitle: '指示器阴影样式',
+        placeholder: '如：return { color: "rgba(150,150,150,0.3)" }',
+      },
+      {
+        type: 'custom',
+        label: '手柄样式',
+        key: 'axisPointerHandleStyle',
+        prop: 'axisPointerHandleStyle',
+        dialogTitle: '指示器手柄样式',
+        placeholder: '如：return { show: false }',
+      }
+    ]
+  },
+]
 
 const updateCommon = () => {
   emit('update', { ...config })
 }
 
-// 监听代码变化，更新配置
-function useCodeToConfig(codeRef, targetObj, key, updateFn) {
-  watchEffect(() => {
-    if (codeRef.value) {
-      try {
-        const fn = new Function(codeRef.value)
-        targetObj[key] = fn()
-      } catch (e) {
-        targetObj[key] = {}
+// 监听代码变化，自动更新配置
+function useCodeToConfig(codeKey, targetObj, prop, updateFn) {
+  watch(
+    () => code[codeKey],
+    (newValue) => {
+      if (newValue) {
+        try {
+          const fn = new Function(newValue);
+          targetObj[prop] = fn();
+        } catch (e) {
+          targetObj[prop] = {};
+        }
+        updateFn?.();
       }
-      updateFn && updateFn()
-    }
-  })
+    },
+    { immediate: true }
+  );
 }
 
-useCodeToConfig(axisLabelCode, config, 'xAxisLabelStyle', updateCommon)
+// 辅助函数
+function getComponentType(type) {
+  switch (type) {
+    case 'input': return 'el-input'
+    case 'input-number': return 'el-input-number'
+    case 'color-picker': return 'el-color-picker'
+    case 'select': return 'el-select'
+    case 'switch': return 'el-switch'
+    default: return 'el-input'
+  }
+}
+
+//自动为所有自定义项设置监听
+formGroups.forEach(group => {
+  group.items.forEach(item => {
+    if (item.type === 'custom') {
+      useCodeToConfig(item.key, config, item.prop, updateCommon);
+    }
+  });
+});
+
 </script>
 
 <template>
   <div class="style-config">
     <el-form label-width="100px">
-      <div class="config-group">
-        <div class="group-header" @click="showTitleAreaConfig = !showTitleAreaConfig">
-          <el-form-item label="标题">
-            <el-switch v-model="config.titleShow" @click.stop @click="showTitleAreaConfig = config.titleShow"
-              @change="updateCommon" />
-          </el-form-item>
-          <el-icon :class="['expand-icon', { 'rotate-180': showTitleAreaConfig }]">
-            <ArrowDown />
-          </el-icon>
-        </div>
-
-        <el-collapse-transition>
-          <div v-show="config.titleShow && showTitleAreaConfig" class="group-content">
-            <el-form-item label="图表标题">
-              <el-input v-model="config.title" @input="updateCommon" />
+      <template v-for="group in formGroups" :key="group.key">
+        <div class="config-group">
+          <div class="group-header" @click="group.toggle()">
+            <el-form-item :label="group.label">
+              <el-switch v-if="group.items[0]?.type === 'switch'" v-model="config[group.items[0].prop]" @click.stop
+                @click="group.sync()" @change="updateCommon" />
             </el-form-item>
-            <el-form-item label="字体大小">
-              <el-input-number v-model="config.titleFontSize" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="标题颜色">
-              <el-color-picker v-model="config.titleColor" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="标题粗细">
-              <el-select v-model="config.titleFontWeight" @change="updateCommon">
-                <el-option label="正常" value="normal" />
-                <el-option label="粗体" value="bold" />
-                <el-option label="细体" value="lighter" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="标题水平对齐">
-              <el-select v-model="config.titleAlign" @change="updateCommon">
-                <el-option label="左对齐" value="left" />
-                <el-option label="居中" value="center" />
-                <el-option label="右对齐" value="right" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="内边距">
-              <el-input-number v-model="config.titlePadding" @change="updateCommon" />
-            </el-form-item>
-
-            <div class="config-group">
-              <div class="group-header" @click="showSubtitleAreaConfig = !showSubtitleAreaConfig">
-                <el-form-item label="副标题">
-                  <el-input v-model="config.subtext" @click.stop @input="updateCommon" />
-                </el-form-item>
-                <el-icon :class="['expand-icon', { 'rotate-180': showSubtitleAreaConfig }]">
-                  <ArrowDown />
-                </el-icon>
-              </div>
-
-              <el-collapse-transition>
-                <div v-show="showSubtitleAreaConfig" class="group-content">
-                  <el-form-item label="字体颜色">
-                    <el-color-picker v-model="config.subtitleColor" @change="updateCommon" />
-                  </el-form-item>
-                  <el-form-item label="字体大小">
-                    <el-input-number v-model="config.subtitleFontSize" @change="updateCommon" />
-                  </el-form-item>
-                  <el-form-item label="字体粗细">
-                    <el-select v-model="config.subtitleFontWeight" @change="updateCommon">
-                      <el-option label="正常" value="normal" />
-                      <el-option label="粗体" value="bold" />
-                      <el-option label="细体" value="lighter" />
-                    </el-select>
-                  </el-form-item>
-                </div>
-              </el-collapse-transition>
+            <el-icon :class="['expand-icon', { 'rotate-180': group.expanded() }]">
+              <ArrowDown />
+            </el-icon>
+          </div>
+          <el-collapse-transition>
+            <div v-show="group.show() && group.expanded()" class="group-content">
+              <template v-for="(item, idx) in group.items" :key="item.prop || item.label">
+                <!-- 跳过第一个switch项（已在header渲染） -->
+                <template v-if="!(idx === 0 && item.type === 'switch')">
+                  <!-- 普通表单项 -->
+                  <template v-if="item.type !== 'group' && item.type !== 'custom'">
+                    <el-form-item :label="item.label">
+                      <component :is="getComponentType(item.type)" v-model="config[item.prop]"
+                        v-bind="item.options ? { options: item.options } : {}" @change="updateCommon"
+                        @input="updateCommon">
+                        <template v-if="item.type === 'select'">
+                          <template v-for="opt in item.options" :key="opt.value">
+                            <el-option :label="opt.label" :value="opt.value" />
+                          </template>
+                        </template>
+                      </component>
+                    </el-form-item>
+                  </template>
+                  <!-- 自定义项 -->
+                  <template v-else-if="item.type === 'custom'">
+                    <el-form-item :label="item.label">
+                      <el-button type="primary" @click="showDialog[item.key] = true">自定义</el-button>
+                      <CodeDialog v-model="code[item.key]" :visible="showDialog[item.key]" :title="item.dialogTitle"
+                        :placeholder="item.placeholder" @update:visible="v => showDialog[item.key] = v" />
+                    </el-form-item>
+                  </template>
+                </template>
+              </template>
             </div>
-          </div>
-
-        </el-collapse-transition>
-      </div>
-
-      <div class="config-group">
-        <div class="group-header" @click="showLegendAreaConfig = !showLegendAreaConfig">
-          <el-form-item label="图例">
-            <el-switch v-model="config.legendShow" @click.stop @click="showLegendAreaConfig = config.legendShow"
-              @change="updateCommon" />
-          </el-form-item>
-          <el-icon :class="['expand-icon', { 'rotate-180': showLegendAreaConfig }]">
-            <ArrowDown />
-          </el-icon>
+          </el-collapse-transition>
         </div>
-
-        <el-collapse-transition>
-          <div v-show="config.legendShow && showLegendAreaConfig" class="group-content">
-            <el-form-item label="图例位置">
-              <el-select v-model="config.legendPosition" @change="updateCommon">
-                <el-option label="顶部" value="top" />
-                <el-option label="底部" value="bottom" />
-                <el-option label="左侧" value="left" />
-                <el-option label="右侧" value="right" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="图例内边距">
-              <el-input-number v-model="config.legendPadding" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="图例间距">
-              <el-input-number v-model="config.legendItemGap" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="图例对齐">
-              <el-select v-model="config.legendAlign" @change="updateCommon">
-                <el-option label="左对齐" value="left" />
-                <el-option label="右对齐" value="right" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="图例宽度">
-              <el-input-number v-model="config.legendWidth" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="图例高度">
-              <el-input-number v-model="config.legendHeight" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="背景颜色">
-              <el-color-picker v-model="config.legendBackgroundColor" @change="updateCommon" show-alpha />
-            </el-form-item>
-            <el-form-item label="边框颜色">
-              <el-color-picker v-model="config.legendBorderColor" @change="updateCommon" show-alpha />
-            </el-form-item>
-            <el-form-item label="边框宽度">
-              <el-input-number v-model="config.legendBorderWidth" @change="updateCommon" />
-            </el-form-item>
-
-            <div class="config-group">
-              <div class="group-header" @click="showLegendFontAreaConfig = !showLegendFontAreaConfig">
-                <el-form-item label="字体样式">
-                </el-form-item>
-                <el-icon :class="['expand-icon', { 'rotate-180': showLegendFontAreaConfig }]">
-                  <ArrowDown />
-                </el-icon>
-              </div>
-
-              <el-collapse-transition>
-                <div v-show="showLegendFontAreaConfig" class="group-content">
-                  <el-form-item label="字体颜色">
-                    <el-color-picker v-model="config.legendFontColor" @change="updateCommon" />
-                  </el-form-item>
-                  <el-form-item label="字体大小">
-                    <el-input-number v-model="config.legendFontSize" @change="updateCommon" />
-                  </el-form-item>
-                  <el-form-item label="字体粗细">
-                    <el-select v-model="config.legendFontWeight" @change="updateCommon">
-                      <el-option label="正常" value="normal" />
-                      <el-option label="粗体" value="bold" />
-                      <el-option label="细体" value="lighter" />
-                    </el-select>
-                  </el-form-item>
-                </div>
-              </el-collapse-transition>
-            </div>
-          </div>
-        </el-collapse-transition>
-      </div>
-
-      <div class="config-group">
-        <div class="group-header" @click="showGridAreaConfig = !showGridAreaConfig">
-          <el-form-item label="坐标系">
-            <el-switch v-model="config.gridShow" @click.stop @click="showGridAreaConfig = config.gridShow"
-              @change="updateCommon" />
-          </el-form-item>
-          <el-icon :class="['expand-icon', { 'rotate-180': showGridAreaConfig }]">
-            <ArrowDown />
-          </el-icon>
-        </div>
-
-        <el-collapse-transition>
-          <div v-show="config.gridShow && showGridAreaConfig" class="group-content">
-            <el-form-item label="坐标系宽度">
-              <el-input-number v-model="config.gridWidth" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="坐标系高度">
-              <el-input-number v-model="config.gridHeight" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="背景颜色">
-              <el-color-picker v-model="config.gridBackgroundColor" @change="updateCommon" show-alpha />
-            </el-form-item>
-            <el-form-item label="边框颜色">
-              <el-color-picker v-model="config.gridBorderColor" @change="updateCommon" show-alpha />
-            </el-form-item>
-            <el-form-item label="边框宽度">
-              <el-input-number v-model="config.gridBorderWidth" @change="updateCommon" />
-            </el-form-item>
-          </div>
-        </el-collapse-transition>
-      </div>
-
-      <div class="config-group">
-        <div class="group-header" @click="showXAxisAreaConfig = !showXAxisAreaConfig">
-          <el-form-item label="x轴">
-            <el-switch v-model="config.xAxisShow" @click.stop @click="showXAxisAreaConfig = config.xAxisShow"
-              @change="updateCommon" />
-          </el-form-item>
-          <el-icon :class="['expand-icon', { 'rotate-180': showXAxisAreaConfig }]">
-            <ArrowDown />
-          </el-icon>
-        </div>
-
-        <el-collapse-transition>
-          <div v-show="showXAxisAreaConfig" class="group-content">
-            <el-form-item label="x轴标题">
-              <el-input v-model="config.xAxisTitle" @input="updateCommon" />
-            </el-form-item>
-            <el-form-item label="x轴位置">
-              <el-select v-model="config.xAxisPosition" @change="updateCommon">
-                <el-option label="底部" value="bottom" />
-                <el-option label="顶部" value="top" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="x轴类型">
-              <el-select v-model="config.xAxisType" @change="updateCommon">
-                <el-option label="类目轴" value="category" />
-                <el-option label="数值轴" value="value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="刻度最小值">
-              <el-input-number v-model="config.xAxisMin" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="刻度最大值">
-              <el-input-number v-model="config.xAxisMax" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="反转x轴">
-              <el-switch v-model="config.xAxisReverse" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="刻度标签配置">
-              <el-button type="primary" @click="showAxisLabelDialog = true">自定义</el-button>
-            </el-form-item>
-
-            <CodeDialog v-model="axisLabelCode" :visible="showAxisLabelDialog"
-              @update:visible="v => showAxisLabelDialog = v" title="自定义x轴刻度标签样式"
-              placeholder="如：return { color: '#f00', fontSize: 16 }" />
-
-          </div>
-        </el-collapse-transition>
-      </div>
-
-      <div class="config-group">
-        <div class="group-header" @click="showYAxisAreaConfig = !showYAxisAreaConfig">
-          <el-form-item label="y轴">
-            <el-switch v-model="config.yAxisShow" @click.stop @click="showYAxisAreaConfig = config.yAxisShow"
-              @change="updateCommon" />
-          </el-form-item>
-          <el-icon :class="['expand-icon', { 'rotate-180': showYAxisAreaConfig }]">
-            <ArrowDown />
-          </el-icon>
-        </div>
-
-        <el-collapse-transition>
-          <div v-show="showYAxisAreaConfig" class="group-content">
-            <el-form-item label="y轴标题">
-              <el-input v-model="config.yAxisTitle" @input="updateCommon" />
-            </el-form-item>
-            <el-form-item label="y轴位置">
-              <el-select v-model="config.yAxisPosition" @change="updateCommon">
-                <el-option label="左边" value="left" />
-                <el-option label="右边" value="right" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="y轴类型">
-              <el-select v-model="config.yAxisType" @change="updateCommon">
-                <el-option label="类目轴" value="category" />
-                <el-option label="数值轴" value="value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="刻度最小值">
-              <el-input-number v-model="config.yAxisMin" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="刻度最大值">
-              <el-input-number v-model="config.yAxisMax" @change="updateCommon" />
-            </el-form-item>
-            <el-form-item label="反转y轴">
-              <el-switch v-model="config.yAxisReverse" @change="updateCommon" />
-            </el-form-item>
-
-          </div>
-        </el-collapse-transition>
-      </div>
-
+      </template>
+      <!-- 其它全局项 -->
       <el-form-item label="暗黑模式">
         <el-switch v-model="config.darkMode" @change="updateCommon" />
       </el-form-item>
-
       <el-form-item label="背景颜色">
         <el-color-picker v-model="config.backgroundColor" @change="updateCommon" show-alpha />
       </el-form-item>
-
     </el-form>
   </div>
 </template>
