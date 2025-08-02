@@ -21,33 +21,70 @@ const chartData = reactive({
 })
 
 const commonConfig = reactive({
- 
+
 })
 
 const advancedConfig = reactive({
-  //通用配置
+  // #region 通用配置
   stack: false,
   showLabel: false,
   labelPosition: 'top',
+  // #endregion
 
-  //折线图配置
+  // #region 折线图配置
   smooth: false,
-  areaStyle: false,
+  areaStyleShow: false,
   areaOpacity: 0.4,
   areaColor: '#fff',
+  areaStyleOrigin: 'start',
 
-  //柱状图配置
+  lineStyle: {
+    color: '#409EFF',
+    width: 2,
+    type: 'solid'
+  },
+  itemSymbol: 'circle',
+  itemSymbolSize: 4,
+  itemStyle: {
+    color: '#409EFF',
+    borderWidth: 2,
+    borderType: 'solid'
+  },
+  xAxisIndex: 0,
+  yAxisIndex: 0,
+  step: false,
+  cursor: 'pointer',
+  markPointShow: false,
+  markPoint: {
+    data: []
+  },
+  markPointSymbol: 'pin',
+  markPointSymbolSize: 50,
+  markLineShow: false,
+  markLine: {
+    data: []
+  },  
+  markAreaShow: false,
+  markArea: {
+    data: []
+  },
+  // #endregion
+
+  // #region 柱状图配置
   barWidth: 'auto',
   barBorderRadius: 0,
+  // #endregion
 
-  //饼图配置
+  // #region 饼图配置
   radius: '75%',
   roseType: '',
   showPercent: true,
+  // #endregion
 
-  //散点图配置
+  // #region 散点图配置
   symbolSize: 10,
   rippleEffect: false
+  // #endregion
 })
 
 const currentOption = ref({})
@@ -71,44 +108,44 @@ const handleAdvancedUpdate = (advanced) => {
 // 生成最终的echarts配置
 const generateOption = () => {
   const baseXAxis = {
-      show: commonConfig.xAxisShow,
-      type: commonConfig.xAxisType,
-      data: chartData.categories,
-      name: commonConfig.xAxisTitle,
-      position: commonConfig.xAxisPosition,
-      min: commonConfig.xAxisMin,
-      max: commonConfig.xAxisMax,
-      axisLabel: commonConfig.xAxisLabelStyle,
-      inverse: commonConfig.xAxisReverse,
-      nameTextStyle: commonConfig.xAxisNameTextStyle,
-      axisLine: commonConfig.xAxisLineStyle,
-      axisTick: commonConfig.xAxisTickStyle,
-      splitLine: commonConfig.xAxisSplitLineStyle
-    }
+    show: commonConfig.xAxisShow,
+    type: commonConfig.xAxisType,
+    data: chartData.categories,
+    name: commonConfig.xAxisTitle,
+    position: commonConfig.xAxisPosition,
+    min: commonConfig.xAxisMin,
+    max: commonConfig.xAxisMax,
+    axisLabel: commonConfig.xAxisLabelStyle,
+    inverse: commonConfig.xAxisReverse,
+    nameTextStyle: commonConfig.xAxisNameTextStyle,
+    axisLine: commonConfig.xAxisLineStyle,
+    axisTick: commonConfig.xAxisTickStyle,
+    splitLine: commonConfig.xAxisSplitLineStyle
+  }
 
   const baseYAxis = {
-      show: commonConfig.yAxisShow,
-      type: commonConfig.yAxisType,
-      name: commonConfig.yAxisTitle,
-      position: commonConfig.yAxisPosition,
-      min: commonConfig.yAxisMin,
-      max: commonConfig.yAxisMax,
-      axisLabel: commonConfig.yAxisLabelStyle,
-      inverse: commonConfig.yAxisReverse,
-      nameTextStyle: commonConfig.yAxisNameTextStyle,
-      axisLine: commonConfig.yAxisLineStyle,
-      axisTick: commonConfig.yAxisTickStyle,
-      splitLine: commonConfig.yAxisSplitLineStyle
-    }
+    show: commonConfig.yAxisShow,
+    type: commonConfig.yAxisType,
+    name: commonConfig.yAxisTitle,
+    position: commonConfig.yAxisPosition,
+    min: commonConfig.yAxisMin,
+    max: commonConfig.yAxisMax,
+    axisLabel: commonConfig.yAxisLabelStyle,
+    inverse: commonConfig.yAxisReverse,
+    nameTextStyle: commonConfig.yAxisNameTextStyle,
+    axisLine: commonConfig.yAxisLineStyle,
+    axisTick: commonConfig.yAxisTickStyle,
+    splitLine: commonConfig.yAxisSplitLineStyle
+  }
 
   const option = {
     title: {
       show: commonConfig.titleShow,
       text: commonConfig.title,
       subtext: commonConfig.subtext,
-      subtextStyle: commonConfig.subtextStyle, 
+      subtextStyle: commonConfig.subtextStyle,
       textStyle: commonConfig.textStyle,
-      left: commonConfig.titleAlign, 
+      left: commonConfig.titleAlign,
       top: commonConfig.titleTop,
       bottom: commonConfig.titleBottom,
       padding: commonConfig.titlePadding,
@@ -185,14 +222,42 @@ const generateOption = () => {
         type: 'line',
         smooth: advancedConfig.smooth,
         stack: advancedConfig.stack ? 'total' : undefined,
+        xAxisIndex: advancedConfig.xAxisIndex,
+        yAxisIndex: advancedConfig.yAxisIndex,
+        step: advancedConfig.step,
+        cursor: advancedConfig.cursor,
+        symbol: advancedConfig.itemSymbol,
+        symbolSize: advancedConfig.itemSymbolSize,
         label: {
           show: advancedConfig.showLabel,
           position: advancedConfig.labelPosition || 'top'
         },
-        areaStyle: advancedConfig.areaStyle ? {
+        areaStyle: advancedConfig.areaStyleShow ? {
           color: advancedConfig.areaColor,
-          opacity: advancedConfig.areaOpacity
-        } : undefined
+          opacity: advancedConfig.areaOpacity,
+          origin: advancedConfig.areaStyleOrigin,
+          shadowBlur: advancedConfig.shadowBlur,
+          shadowColor: advancedConfig.shadowColor,
+          shadowOffsetX: advancedConfig.shadowOffsetX,
+          shadowOffsetY: advancedConfig.shadowOffsetY
+        } : undefined,
+        lineStyle: {
+          ...advancedConfig.lineStyle,
+          color: advancedConfig.lineStyleColor,
+          width: advancedConfig.lineStyleWidth,
+          type: advancedConfig.lineStyleType
+        },
+        itemStyle: {
+          ...advancedConfig.itemStyle,
+          color: advancedConfig.itemStyleColor,
+        },
+        markPoint: advancedConfig.markPointShow ? {
+          ...advancedConfig.markPoint,
+          symbol: advancedConfig.markPointSymbol,
+          symbolSize: advancedConfig.markPointSymbolSize,
+        } : undefined,
+        markLine: advancedConfig.markLineShow ? advancedConfig.markLine : undefined,
+        markArea: advancedConfig.markAreaShow ? advancedConfig.markArea : undefined
       }))
       break
     case 'bar':
