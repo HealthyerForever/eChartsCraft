@@ -15,6 +15,7 @@ const showGroup = reactive({
   yAxis: false,
   tooltip: false,
   axisPointer: false,
+  toolbox: false,
 })
 
 // 代码弹窗相关
@@ -43,7 +44,10 @@ const showDialog = reactive({
   axisPointerLabelStyle: false,
   axisPointerLineStyle: false,
   axisPointerShadowStyle: false,
-  axisPointerHandleStyle: false
+  axisPointerHandleStyle: false,
+
+  toolboxFeatures: false,
+  toolboxIconStyle: false,
 })
 
 const code = reactive({
@@ -71,7 +75,10 @@ const code = reactive({
   axisPointerLabelStyle: 'return { color: "#fff", fontSize: 12 }',
   axisPointerLineStyle: 'return { color: "#ccc", width: 1, type: "solid" }',
   axisPointerShadowStyle: 'return { color: "rgba(150,150,150,0.3)" }',
-  axisPointerHandleStyle: 'return { show: false }'
+  axisPointerHandleStyle: 'return { show: false }',
+
+  toolboxFeatures: 'return { \n\tsaveAsImage: {}, \n\tdataView: {}, \n\trestore: {}, \n\tmagicType: { type: ["line", "bar"] } \n}',
+  toolboxIconStyle: 'return { color: "", borderColor: "#666", borderWidth: 1 }',
 })
 
 // 配置对象
@@ -173,6 +180,18 @@ const config = reactive({
   axisPointerLineStyle: {},
   axisPointerShadowStyle: {},
   axisPointerHandleStyle: {},
+  // #endregion
+
+  // #region 工具栏配置
+  toolboxShow: false,
+  toolboxFeatures: {},
+  toolboxAlign: 'right',
+  toolboxOrient: 'horizontal',
+  toolboxTop: null,
+  toolboxBottom: null,
+  toolboxItemGap: 8,
+  toolboxItemSize: 15,
+  toolboxIconStyle: {},
   // #endregion
 
   // #region 全局配置
@@ -533,6 +552,56 @@ const formGroups = [
         prop: 'axisPointerHandleStyle',
         dialogTitle: '指示器手柄样式',
         placeholder: '如：return { show: false }',
+      }
+    ]
+  },
+  {
+    key: 'toolbox',
+    label: '工具栏',
+    show: () => config.toolboxShow,
+    toggle: () => showGroup.toolbox = !showGroup.toolbox,
+    sync: () => showGroup.toolbox = config.toolboxShow,
+    expanded: () => showGroup.toolbox,
+    items: [
+      { type: 'switch', label: '显示工具栏', prop: 'toolboxShow' },
+      {
+        type: 'custom',
+        label: '工具栏功能',
+        key: 'toolboxFeatures',
+        prop: 'toolboxFeatures',
+        dialogTitle: '工具栏功能配置',
+        placeholder: '如：return { saveAsImage: {}, dataView: {}, restore: {}, magicType: { type: ["line", "bar"] } }',
+      },
+      {
+        type: 'select',
+        label: '工具栏对齐',
+        prop: 'toolboxAlign',
+        options: [
+          { label: '左对齐', value: 'left' },
+          { label: '右对齐', value: 'right' },
+          { label: '居中对齐', value: 'center' }
+        ]
+      },
+      {
+        type: 'select',
+        label: '工具栏方向',
+        prop: 'toolboxOrient',
+        options: [
+          { label: '垂直', value: 'vertical' },
+          { label: '水平', value: 'horizontal' }
+        ]
+      },
+      { type: 'input-number', label: '上边距', prop: 'toolboxTop' },
+      { type: 'input-number', label: '下边距', prop: 'toolboxBottom' },
+      { type: 'input-number', label: '图标间距', prop: 'toolboxItemGap' },
+      { type: 'input-number', label: '图标大小', prop: 'toolboxItemSize' },
+      {
+        type: 'custom',
+        label: '图标样式',
+        key: 'toolboxIconStyle',
+        prop: 'toolboxIconStyle',
+        dialogTitle: '工具栏图标样式',
+        placeholder: '如：return { color: "#000", borderColor: "#000", borderWidth: 1 }',
       }
     ]
   },

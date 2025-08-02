@@ -157,6 +157,17 @@ const generateOption = () => {
       shadowStyle: commonConfig.axisPointerShadowStyle,
       handle: commonConfig.axisPointerHandleStyle
     },
+    toolbox: {
+      show: commonConfig.toolboxShow,
+      feature: commonConfig.toolboxFeatures,
+      orient: commonConfig.toolboxOrient,
+      left: commonConfig.toolboxAlign,
+      top: commonConfig.toolboxTop,
+      bottom: commonConfig.toolboxBottom,
+      iconStyle: commonConfig.toolboxIconStyle,
+      itemGap: commonConfig.toolboxItemGap,
+      itemSize: commonConfig.toolboxItemSize,
+    },
     backgroundColor: commonConfig.backgroundColor,
   }
 
