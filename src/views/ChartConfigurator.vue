@@ -63,6 +63,11 @@ const handleCommonUpdate = (common) => {
   generateOption()
 }
 
+const handleAdvancedUpdate = (advanced) => {
+  Object.assign(advancedConfig, advanced)
+  generateOption()
+}
+
 // 生成最终的echarts配置
 const generateOption = () => {
   const baseXAxis = {
@@ -265,7 +270,7 @@ generateOption()
 
       <el-tab-pane label="高级" name="advanced">
         <AdvancedConfig :chart-type="chartType" :model-value="advancedConfig"
-          @update:modelValue="val => Object.assign(advancedConfig, val)" />
+          @update:modelValue="handleAdvancedUpdate" />
       </el-tab-pane>
     </el-tabs>
 

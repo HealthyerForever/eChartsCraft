@@ -10,7 +10,7 @@ const props = defineProps({
     type: String,
     default: 'line'
   },
-  modelValue: {  // 使用v-model接收配置
+  modelValue: {  
     type: Object,
     required: true
   }
