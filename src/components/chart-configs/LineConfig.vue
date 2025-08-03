@@ -15,6 +15,7 @@ const emit = defineEmits(['update:modelValue'])
 // 折叠控制
 const showGroup = reactive({
   basic: false,
+  label: false,
   areaStyle: false,
   lineStyle: false,
   itemStyle: false,
@@ -25,6 +26,7 @@ const showGroup = reactive({
 
 // 代码弹窗相关
 const showDialog = reactive({
+  label: false,
   lineStyle: false,
   itemStyle: false,
   markPoint: false,
@@ -33,6 +35,7 @@ const showDialog = reactive({
 })
 
 const code = reactive({
+  label: '',
   lineStyle: 'return { opacity: 1 }',
   itemStyle: 'return { color: "#409EFF", borderWidth: 2, borderType: "solid" }',
   markPoint: 'return { data: [{ type: "max", name: "最高点" }] }',
@@ -121,6 +124,57 @@ const formGroups = [
     ]
   },
   {
+    key: 'label',
+    label: '数据标签',
+    toggle: () => showGroup.label = !showGroup.label,
+    expanded: () => showGroup.label,
+    items: [
+      {
+        type: 'switch',
+        label: '显示数据标签',
+        prop: 'showLabel',
+        onChange: (val) => updateConfig('showLabel', val)
+      },
+      {
+        type: 'select',
+        label: '标签位置',
+        prop: 'labelPosition',
+        onChange: (val) => updateConfig('labelPosition', val),
+        options: [
+          { label: '内部', value: 'inside' },
+          { label: '顶部', value: 'top' },
+          { label: '右侧', value: 'right' },
+          { label: '左侧', value: 'left' },
+          { label: '底部', value: 'bottom' }
+        ]
+      },
+      {
+        type: 'color-picker',
+        label: '标签颜色',
+        prop: 'labelColor',
+        showAlpha: true,
+        onChange: (val) => updateConfig('labelColor', val)
+      },
+      {
+        type: 'input-number',
+        label: '字体大小',
+        prop: 'labelFontSize',
+        min: 10,
+        max: 30,
+        step: 1,
+        onChange: (val) => updateConfig('labelFontSize', val)
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'label',
+        prop: 'label',
+        dialogTitle: '数据标签样式配置',
+        placeholder: '如：return { show: true, position: "top" }',
+      }
+    ]
+  },
+  {
     key: 'areaStyle',
     label: '面积图',
     toggle: () => showGroup.areaStyle = !showGroup.areaStyle,
@@ -155,7 +209,7 @@ const formGroups = [
         prop: 'areaOpacity',
         min: 0,
         max: 1,
-        step: 0.1,
+        step: 0.01,
         onChange: (val) => updateConfig('areaOpacity', val)
       },
       {

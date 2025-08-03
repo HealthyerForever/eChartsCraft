@@ -6,7 +6,7 @@ import CommonConfig from '@/components/CommonConfig.vue'
 import AdvancedConfig from '@/components/AdvancedConfig.vue'
 
 const activeTab = ref('type')
-const chartType = ref('line')
+const chartType = ref('bar')
 
 const chartTypes = [
   { value: 'line', label: '折线图' },
@@ -25,54 +25,115 @@ const commonConfig = reactive({
 })
 
 const advancedConfig = reactive({
-  // #region 通用配置
-  stack: false,
-  showLabel: false,
-  labelPosition: 'top',
-  // #endregion
-
   // #region 折线图配置
-  smooth: false,
-  areaStyleShow: false,
-  areaOpacity: 0.4,
-  areaColor: '#fff',
-  areaStyleOrigin: 'start',
+  line: {
+    // 基础配置
+    smooth: false,
+    stack: false,
+    xAxisIndex: 0,
+    yAxisIndex: 0,
+    step: false,
+    cursor: 'pointer',
 
-  lineStyle: {
-    color: '#409EFF',
-    width: 2,
-    type: 'solid'
-  },
-  itemSymbol: 'circle',
-  itemSymbolSize: 4,
-  itemStyle: {
-    color: '#409EFF',
-    borderWidth: 2,
-    borderType: 'solid'
-  },
-  xAxisIndex: 0,
-  yAxisIndex: 0,
-  step: false,
-  cursor: 'pointer',
-  markPointShow: false,
-  markPoint: {
-    data: []
-  },
-  markPointSymbol: 'pin',
-  markPointSymbolSize: 50,
-  markLineShow: false,
-  markLine: {
-    data: []
-  },  
-  markAreaShow: false,
-  markArea: {
-    data: []
+    // 面积样式
+    areaStyleShow: false,
+    areaOpacity: 0.4,
+    areaColor: '#fff',
+    areaStyleOrigin: 'start',
+
+    // 标签样式
+    showLabel: false,
+    labelPosition: 'top',
+    labelColor: '#000',
+    labelFontSize: 12,
+    label: {},
+
+    // 线条样式
+    lineStyleWidth: 2,
+    lineStyleColor: '#409EFF',
+    lineStyleType: 'solid',
+    lineStyle: {
+      color: '#409EFF',
+      width: 2,
+      type: 'solid'
+    },
+
+    // 图形样式
+    itemSymbol: 'circle',
+    itemSymbolSize: 4,
+    itemStyleColor: '#409EFF',
+    itemStyle: {
+      color: '#409EFF',
+      borderWidth: 2,
+      borderType: 'solid'
+    },
+
+    // 辅助标记
+    markPointShow: false,
+    markPoint: {
+      data: []
+    },
+    markPointSymbol: 'pin',
+    markPointSymbolSize: 50,
+    markLineShow: false,
+    markLine: {
+      data: []
+    },
+    markAreaShow: false,
+    markArea: {
+      data: []
+    },
   },
   // #endregion
 
   // #region 柱状图配置
-  barWidth: 'auto',
-  barBorderRadius: 0,
+  bar: {
+    // 基础配置
+    xAxisIndex: 0,
+    yAxisIndex: 0,
+    cursor: 'pointer',
+    stack: false,
+    barWidth: 'auto',
+    barBorderRadius: 0,
+
+    // 标签样式
+    showLabel: false,
+    labelPosition: 'top',
+    labelColor: '#000',
+    labelFontSize: 12,
+    label: {},
+
+    // 背景样式
+    showBackground: false,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundOpacity: 1,
+    backgroundStyle: {},
+
+    // 图形样式
+    itemStyleColor: '#409EFF',
+    itemStyleOpacity: 1,
+    itemStyle: {
+      color: '#409EFF',
+      borderWidth: 2,
+      borderType: 'solid'
+    },
+
+    // 辅助标记
+    markPointShow: false,
+    markPoint: {
+      data: []
+    },
+    markPointSymbol: 'pin',
+    markPointSymbolSize: 50,
+    markLineShow: false,
+    markLine: {
+      data: []
+    },
+    markAreaShow: false,
+    markArea: {
+      data: []
+    },
+  },
   // #endregion
 
   // #region 饼图配置
@@ -101,7 +162,7 @@ const handleCommonUpdate = (common) => {
 }
 
 const handleAdvancedUpdate = (advanced) => {
-  Object.assign(advancedConfig, advanced)
+  Object.assign(advancedConfig[chartType.value], advanced)
   generateOption()
 }
 
@@ -220,44 +281,47 @@ const generateOption = () => {
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'line',
-        smooth: advancedConfig.smooth,
-        stack: advancedConfig.stack ? 'total' : undefined,
-        xAxisIndex: advancedConfig.xAxisIndex,
-        yAxisIndex: advancedConfig.yAxisIndex,
-        step: advancedConfig.step,
-        cursor: advancedConfig.cursor,
-        symbol: advancedConfig.itemSymbol,
-        symbolSize: advancedConfig.itemSymbolSize,
+        smooth: advancedConfig.line.smooth,
+        stack: advancedConfig.line.stack ? 'total' : undefined,
+        xAxisIndex: advancedConfig.line.xAxisIndex,
+        yAxisIndex: advancedConfig.line.yAxisIndex,
+        step: advancedConfig.line.step,
+        cursor: advancedConfig.line.cursor,
+        symbol: advancedConfig.line.itemSymbol,
+        symbolSize: advancedConfig.line.itemSymbolSize,
         label: {
-          show: advancedConfig.showLabel,
-          position: advancedConfig.labelPosition || 'top'
+          ...advancedConfig.line.label,
+          show: advancedConfig.line.showLabel,
+          position: advancedConfig.line.labelPosition || 'top',
+          color: advancedConfig.line.labelColor,
+          fontSize: advancedConfig.line.labelFontSize
         },
-        areaStyle: advancedConfig.areaStyleShow ? {
-          color: advancedConfig.areaColor,
-          opacity: advancedConfig.areaOpacity,
-          origin: advancedConfig.areaStyleOrigin,
-          shadowBlur: advancedConfig.shadowBlur,
-          shadowColor: advancedConfig.shadowColor,
-          shadowOffsetX: advancedConfig.shadowOffsetX,
-          shadowOffsetY: advancedConfig.shadowOffsetY
+        areaStyle: advancedConfig.line.areaStyleShow ? {
+          color: advancedConfig.line.areaColor,
+          opacity: advancedConfig.line.areaOpacity,
+          origin: advancedConfig.line.areaStyleOrigin,
+          shadowBlur: advancedConfig.line.shadowBlur,
+          shadowColor: advancedConfig.line.shadowColor,
+          shadowOffsetX: advancedConfig.line.shadowOffsetX,
+          shadowOffsetY: advancedConfig.line.shadowOffsetY
         } : undefined,
         lineStyle: {
-          ...advancedConfig.lineStyle,
-          color: advancedConfig.lineStyleColor,
-          width: advancedConfig.lineStyleWidth,
-          type: advancedConfig.lineStyleType
+          ...advancedConfig.line.lineStyle,
+          color: advancedConfig.line.lineStyleColor,
+          width: advancedConfig.line.lineStyleWidth,
+          type: advancedConfig.line.lineStyleType
         },
         itemStyle: {
-          ...advancedConfig.itemStyle,
-          color: advancedConfig.itemStyleColor,
+          ...advancedConfig.line.itemStyle,
+          color: advancedConfig.line.itemStyleColor,
         },
-        markPoint: advancedConfig.markPointShow ? {
-          ...advancedConfig.markPoint,
-          symbol: advancedConfig.markPointSymbol,
-          symbolSize: advancedConfig.markPointSymbolSize,
+        markPoint: advancedConfig.line.markPointShow ? {
+          ...advancedConfig.line.markPoint,
+          symbol: advancedConfig.line.markPointSymbol,
+          symbolSize: advancedConfig.line.markPointSymbolSize,
         } : undefined,
-        markLine: advancedConfig.markLineShow ? advancedConfig.markLine : undefined,
-        markArea: advancedConfig.markAreaShow ? advancedConfig.markArea : undefined
+        markLine: advancedConfig.line.markLineShow ? advancedConfig.line.markLine : undefined,
+        markArea: advancedConfig.line.markAreaShow ? advancedConfig.line.markArea : undefined
       }))
       break
     case 'bar':
@@ -267,12 +331,36 @@ const generateOption = () => {
         ...series,
         type: 'bar',
         stack: advancedConfig.stack ? 'total' : undefined,
-        barWidth: advancedConfig.barWidth,
-        barBorderRadius: advancedConfig.barBorderRadius,
+        xAxisIndex: advancedConfig.bar.xAxisIndex,
+        yAxisIndex: advancedConfig.bar.yAxisIndex,
+        cursor: advancedConfig.bar.cursor,
+        barWidth: advancedConfig.bar.barWidth,
+        barGap: advancedConfig.bar.barGap,
+        showBackground: advancedConfig.bar.showBackground,
+        backgroundStyle: {
+          ...advancedConfig.bar.backgroundStyle,
+          color: advancedConfig.bar.backgroundColor,
+          opacity: advancedConfig.bar.backgroundOpacity,
+        },
         label: {
-          show: advancedConfig.showLabel,
-          position: advancedConfig.labelPosition || 'top'
-        }
+          ...advancedConfig.bar.label,
+          show: advancedConfig.bar.showLabel,
+          position: advancedConfig.bar.labelPosition || 'top',
+          color: advancedConfig.bar.labelColor,
+          fontSize: advancedConfig.bar.labelFontSize
+        },
+        itemStyle: {
+          ...advancedConfig.bar.itemStyle,
+          color: advancedConfig.bar.itemStyleColor,
+          opacity: advancedConfig.bar.itemStyleOpacity,
+        },
+        markPoint: advancedConfig.bar.markPointShow ? {
+          ...advancedConfig.bar.markPoint,
+          symbol: advancedConfig.bar.markPointSymbol,
+          symbolSize: advancedConfig.bar.markPointSymbolSize,
+        } : undefined,
+        markLine: advancedConfig.bar.markLineShow ? advancedConfig.bar.markLine : undefined,
+        markArea: advancedConfig.bar.markAreaShow ? advancedConfig.bar.markArea : undefined
       }))
       break
     case 'pie':
@@ -334,7 +422,7 @@ generateOption()
       </el-tab-pane>
 
       <el-tab-pane label="高级" name="advanced">
-        <AdvancedConfig :chart-type="chartType" :model-value="advancedConfig"
+        <AdvancedConfig :chart-type="chartType" :model-value="advancedConfig[chartType]"
           @update:modelValue="handleAdvancedUpdate" />
       </el-tab-pane>
     </el-tabs>
