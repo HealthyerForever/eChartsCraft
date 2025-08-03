@@ -6,7 +6,7 @@ import CommonConfig from '@/components/CommonConfig.vue'
 import AdvancedConfig from '@/components/AdvancedConfig.vue'
 
 const activeTab = ref('type')
-const chartType = ref('bar')
+const chartType = ref('line')
 
 const chartTypes = [
   { value: 'line', label: '折线图' },
@@ -137,14 +137,102 @@ const advancedConfig = reactive({
   // #endregion
 
   // #region 饼图配置
-  radius: '75%',
-  roseType: '',
-  showPercent: true,
+  pie: {
+    // 基础配置
+    innerRadius: 0,
+    outerRadius: 75,
+    startAngle: 0,
+    endAngle: 360,
+    clockwise: true,
+    padAngle: 0,
+    percentPrecision: 2,
+    roseType: '',
+    centerX: 50,
+    centerY: 50,
+    cursor: 'pointer',
+
+    // 标签样式
+    showLabel: true,
+    labelPosition: 'outside',
+    labelColor: '#000',
+    labelFontSize: 12,
+    label: {},
+
+    // 标签线样式
+    showLabelLine: true,
+    labelLineLength: 10,
+    labelLineLength2: 20,
+    labelLineSmooth: 0,
+    labelLine: {},
+
+    // 图形样式
+    itemStyleColor: '',
+    itemStyleOpacity: 1,
+    itemStyle: {
+      borderWidth: 2,
+      borderType: 'solid'
+    },
+
+    // 辅助标记
+    markPointShow: false,
+    markPoint: {
+      data: []
+    },
+    markPointSymbol: 'pin',
+    markPointSymbolSize: 50,
+    markLineShow: false,
+    markLine: {
+      data: []
+    },
+    markAreaShow: false,
+    markArea: {
+      data: []
+    },
+  },
   // #endregion
 
   // #region 散点图配置
-  symbolSize: 10,
-  rippleEffect: false
+  scatter: {
+    // 基础配置
+    stack: false,
+    xAxisIndex: 0,
+    yAxisIndex: 0,
+    step: false,
+    cursor: 'pointer',
+
+    // 标签样式
+    showLabel: false,
+    labelPosition: 'top',
+    labelColor: '#000',
+    labelFontSize: 12,
+    label: {},
+
+    // 图形样式
+    itemSymbol: 'circle',
+    itemSymbolSize: 4,
+    itemStyleColor: '#409EFF',
+    itemStyle: {
+      color: '#409EFF',
+      borderWidth: 2,
+      borderType: 'solid'
+    },
+
+    // 辅助标记
+    markPointShow: false,
+    markPoint: {
+      data: []
+    },
+    markPointSymbol: 'pin',
+    markPointSymbolSize: 50,
+    markLineShow: false,
+    markLine: {
+      data: []
+    },
+    markAreaShow: false,
+    markArea: {
+      data: []
+    },
+  },
   // #endregion
 })
 
@@ -366,14 +454,49 @@ const generateOption = () => {
     case 'pie':
       option.series = [{
         type: 'pie',
-        data: chartData.series[0]?.data || [],
-        radius: advancedConfig.radius,
-        roseType: advancedConfig.roseType,
+        data: [
+          { value: 335, name: '直接访问' },
+          { value: 310, name: '邮件营销' },
+          { value: 234, name: '联盟广告' },
+          { value: 135, name: '视频广告' },
+          { value: 1548, name: '搜索引擎' }
+        ],
+        data: chartData.series[0].data.map((m, index) => ({value: m, name: chartData.categories[index]})),
+        radius: [advancedConfig.pie.innerRadius + '%', advancedConfig.pie.outerRadius + '%'],
+        roseType: advancedConfig.pie.roseType,
+        startAngle: advancedConfig.pie.startAngle,
+        endAngle: advancedConfig.pie.endAngle,
+        clockwise: advancedConfig.pie.clockwise,
+        padAngle: advancedConfig.pie.padAngle,
+        percentPrecision: advancedConfig.pie.percentPrecision,
+        cursor: advancedConfig.pie.cursor,
+        center: [advancedConfig.pie.centerX + '%', advancedConfig.pie.centerY + '%'],
         label: {
-          show: advancedConfig.showLabel,
-          position: advancedConfig.labelPosition || 'top',
-          formatter: advancedConfig.showPercent ? '{b}: {c} ({d}%)' : '{b}: {c}'
-        }
+          ...advancedConfig.pie.label,
+          show: advancedConfig.pie.showLabel,
+          position: advancedConfig.pie.labelPosition || 'top',
+          color: advancedConfig.pie.labelColor,
+          fontSize: advancedConfig.pie.labelFontSize
+        },
+        labelLine: {
+          ...advancedConfig.pie.labelLine,
+          show: advancedConfig.pie.showLabelLine,
+          length: advancedConfig.pie.labelLineLength,
+          length2: advancedConfig.pie.labelLineLength2,
+          smooth: advancedConfig.pie.labelLineSmooth
+        },
+        itemStyle: {
+          ...advancedConfig.pie.itemStyle,
+          color: advancedConfig.pie.itemStyleColor,
+          opacity: advancedConfig.pie.itemStyleOpacity,
+        },
+        markPoint: advancedConfig.pie.markPointShow ? {
+          ...advancedConfig.pie.markPoint,
+          symbol: advancedConfig.pie.markPointSymbol,
+          symbolSize: advancedConfig.pie.markPointSymbolSize,
+        } : undefined,
+        markLine: advancedConfig.pie.markLineShow ? advancedConfig.pie.markLine : undefined,
+        markArea: advancedConfig.pie.markAreaShow ? advancedConfig.pie.markArea : undefined
       }]
       break
     case 'scatter':
@@ -382,16 +505,34 @@ const generateOption = () => {
       option.series = chartData.series.map(series => ({
         ...series,
         type: 'scatter',
-        symbolSize: advancedConfig.symbolSize,
-        rippleEffect: advancedConfig.rippleEffect,
+        stack: advancedConfig.scatter.stack ? 'total' : undefined,
+        xAxisIndex: advancedConfig.scatter.xAxisIndex,
+        yAxisIndex: advancedConfig.scatter.yAxisIndex,
+        cursor: advancedConfig.scatter.cursor,
+        symbol: advancedConfig.scatter.itemSymbol,
+        symbolSize: advancedConfig.scatter.itemSymbolSize,
         label: {
-          show: advancedConfig.showLabel,
-          position: advancedConfig.labelPosition || 'top'
-        }
+          ...advancedConfig.scatter.label,
+          show: advancedConfig.scatter.showLabel,
+          position: advancedConfig.scatter.labelPosition || 'top',
+          color: advancedConfig.scatter.labelColor,
+          fontSize: advancedConfig.scatter.labelFontSize
+        },
+        itemStyle: {
+          ...advancedConfig.scatter.itemStyle,
+          color: advancedConfig.scatter.itemStyleColor,
+        },
+        markPoint: advancedConfig.scatter.markPointShow ? {
+          ...advancedConfig.scatter.markPoint,
+          symbol: advancedConfig.scatter.markPointSymbol,
+          symbolSize: advancedConfig.scatter.markPointSymbolSize,
+        } : undefined,
+        markLine: advancedConfig.scatter.markLineShow ? advancedConfig.scatter.markLine : undefined,
+        markArea: advancedConfig.scatter.markAreaShow ? advancedConfig.scatter.markArea : undefined
       }))
       break
   }
-
+  //console.log(chartData)
   currentOption.value = option
 }
 

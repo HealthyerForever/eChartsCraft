@@ -15,16 +15,31 @@ const emit = defineEmits(['update:modelValue'])
 // 折叠控制
 const showGroup = reactive({
   basic: false,
-
+  label: false,
+  labelLine: false,
+  itemStyle: false,
+  markPoint: false,
+  markLine: false,
+  markArea: false
 })
 
 // 代码弹窗相关
 const showDialog = reactive({
-  
+  label: false,
+  labelLine: false,
+  itemStyle: false,
+  markPoint: false,
+  markLine: false,
+  markArea: false
 })
 
 const code = reactive({
-
+  label: '',
+  labelLine: '',
+  itemStyle: 'return { borderWidth: 2, borderType: "solid" }',
+  markPoint: '',
+  markLine: '',
+  markArea: ''
 })
 
 // 处理配置更新
@@ -61,9 +76,331 @@ const formGroups = [
     toggle: () => showGroup.basic = !showGroup.basic,
     expanded: () => showGroup.basic,
     items: [
-      
+      {
+        type: 'input-number',
+        label: '内半径',
+        prop: 'innerRadius',
+        min: 0,
+        max: 100,
+        step: 1,
+        onChange: (val) => updateConfig('innerRadius', val)
+      },
+      {
+        type: 'input-number',
+        label: '外半径',
+        prop: 'outerRadius',
+        min: 0,
+        max: 100,
+        step: 1,
+        onChange: (val) => updateConfig('outerRadius', val)
+      },
+      {
+        type: 'input-number',
+        label: '中心X',
+        prop: 'centerX',
+        min: -1000,
+        max: 1000,
+        step: 1,
+        onChange: (val) => updateConfig('centerX', val)
+      },
+      {
+        type: 'input-number',
+        label: '中心Y',
+        prop: 'centerY',
+        min: -1000,
+        max: 1000,
+        step: 1,
+        onChange: (val) => updateConfig('centerY', val)
+      },
+      {
+        type: 'input-number',
+        label: '起始角度',
+        prop: 'startAngle',
+        min: 0,
+        max: 360,
+        step: 1,
+        onChange: (val) => updateConfig('startAngle', val)
+      },
+      {
+        type: 'input-number',
+        label: '结束角度',
+        prop: 'endAngle',
+        min: 0,
+        max: 360,
+        step: 1,
+        onChange: (val) => updateConfig('endAngle', val)
+      },
+      {
+        type: 'switch',
+        label: '顺时针排布',
+        prop: 'clockwise',
+        onChange: (val) => updateConfig('clockwise', val)
+      },
+      {
+        type: 'input-number',
+        label: '分隔角度',
+        prop: 'padAngle',
+        min: 0,
+        max: 360,
+        step: 1,
+        onChange: (val) => updateConfig('padAngle', val)
+      },
+      {
+        type: 'input-number',
+        label: '百分比精度',
+        prop: 'percentPrecision',
+        min: 0,
+        max: 10,
+        step: 1,
+        onChange: (val) => updateConfig('percentPrecision', val)
+      },
+      {
+        type: 'select',
+        label: '玫瑰图类型',
+        prop: 'roseType',
+        options: [
+          { label: '无', value: '' },
+          { label: '半径', value: 'radius' },
+          { label: '面积', value: 'area' }
+        ],
+        onChange: (val) => updateConfig('roseType', val)
+      },
+      {
+        type: 'select',
+        label: '光标样式',
+        prop: 'cursor',
+        onChange: (val) => updateConfig('cursor', val),
+        options: [
+          { label: '默认', value: 'default' },
+          { label: '十字线', value: 'crosshair' },
+          { label: '手型', value: 'pointer' },
+          { label: '文本', value: 'text' },
+          { label: '移动', value: 'move' },
+          { label: '等待', value: 'wait' }
+        ]
+      }
     ]
   },
+  {
+    key: 'label',
+    label: '数据标签',
+    toggle: () => showGroup.label = !showGroup.label,
+    expanded: () => showGroup.label,
+    items: [
+      {
+        type: 'switch',
+        label: '显示数据标签',
+        prop: 'showLabel',
+        onChange: (val) => updateConfig('showLabel', val)
+      },
+      {
+        type: 'select',
+        label: '标签位置',
+        prop: 'labelPosition',
+        onChange: (val) => updateConfig('labelPosition', val),
+        options: [
+          { label: '内部', value: 'inside' },
+          { label: '外部', value: 'outside' },
+          { label: '中心', value: 'center' },
+        ]
+      },
+      {
+        type: 'color-picker',
+        label: '标签颜色',
+        prop: 'labelColor',
+        showAlpha: true,
+        onChange: (val) => updateConfig('labelColor', val)
+      },
+      {
+        type: 'input-number',
+        label: '字体大小',
+        prop: 'labelFontSize',
+        min: 10,
+        max: 30,
+        step: 1,
+        onChange: (val) => updateConfig('labelFontSize', val)
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'label',
+        prop: 'label',
+        dialogTitle: '数据标签样式配置',
+        placeholder: '如：return { show: true, position: "top" }',
+      }
+    ]
+  },
+  {
+    key: 'labelLine',
+    label: '标签线',
+    toggle: () => showGroup.labelLine = !showGroup.labelLine,
+    expanded: () => showGroup.labelLine,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标签线',
+        prop: 'showLabelLine',
+        onChange: (val) => updateConfig('showLabelLine', val)
+      },
+      {
+        type: 'input-number',
+        label: '线1长度',
+        prop: 'labelLineLength',
+        min: 0,
+        max: 100,
+        step: 1,
+        onChange: (val) => updateConfig('labelLineLength', val)
+      },
+      {
+        type: 'input-number',
+        label: '线2长度',
+        prop: 'labelLineLength2',
+        min: 1,
+        max: 100,
+        step: 1,
+        onChange: (val) => updateConfig('labelLineLength2', val)
+      },
+      {
+        type: 'slider',
+        label: '平滑程度',
+        prop: 'labelLineSmooth',
+        min: 0,
+        max: 1,
+        step: 0.1,
+        onChange: (val) => updateConfig('labelLineSmooth', val),
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'labelLine',
+        prop: 'labelLine',
+        dialogTitle: '标签线样式配置',
+        placeholder:
+          '如：return { show: true, length: 10, lineStyle: { color:"#000" } }'
+      }
+    ]
+  },
+  {
+    key: 'itemStyle',
+    label: '扇形',
+    toggle: () => showGroup.itemStyle = !showGroup.itemStyle,
+    expanded: () => showGroup.itemStyle,
+    items: [
+      {
+        type: 'color-picker',
+        label: '颜色',
+        prop: 'itemStyleColor',
+        showAlpha: true,
+        onChange: (val) => updateConfig('itemStyleColor', val)
+      },
+      {
+        type: 'slider',
+        label: '透明度',
+        prop: 'itemStyleOpacity',
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (val) => updateConfig('itemStyleOpacity', val)
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'itemStyle',
+        prop: 'itemStyle',
+        dialogTitle: '数据点样式配置',
+        placeholder: '如：return { color: "#409EFF", borderWidth: 2, borderType: "solid" }'
+      }
+    ]
+  },
+
+  {
+    key: 'markPoint',
+    label: '标记点',
+    toggle: () => showGroup.markPoint = !showGroup.markPoint,
+    expanded: () => showGroup.markPoint,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记点',
+        prop: 'markPointShow',
+        onChange: (val) => updateConfig('markPointShow', val)
+      },
+      {
+        type: 'select',
+        label: '标记点类型',
+        prop: 'markPointSymbol',
+        onChange: (val) => updateConfig('markPointSymbol', val),
+        options: [
+          { label: '圆形', value: 'circle' },
+          { label: '方形', value: 'rect' },
+          { label: '三角形', value: 'triangle' },
+          { label: '菱形', value: 'diamond' },
+          { label: '图钉', value: 'pin' },
+          { label: '箭头', value: 'arrow' }
+        ]
+      },
+      {
+        type: 'input-number',
+        label: '标记点大小',
+        prop: 'markPointSymbolSize',
+        step: 1,
+        onChange: (val) => updateConfig('markPointSymbolSize', val)
+      },
+      {
+        type: 'custom',
+        label: '标记点配置',
+        key: 'markPoint',
+        prop: 'markPoint',
+        dialogTitle: '标记点配置',
+        placeholder: '如：return [{ name: "最高点", coord: [10, 20] }]'
+      }
+    ]
+  },
+  {
+    key: 'markLine',
+    label: '标记线',
+    toggle: () => showGroup.markLine = !showGroup.markLine,
+    expanded: () => showGroup.markLine,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记线',
+        prop: 'markLineShow',
+        onChange: (val) => updateConfig('markLineShow', val)
+      },
+      {
+        type: 'custom',
+        label: '标记线配置',
+        key: 'markLine',
+        prop: 'markLine',
+        dialogTitle: '标记线配置',
+        placeholder: '如：return [{ name: "平均值", yAxis: 10 }]'
+      }
+    ]
+  },
+  {
+    key: 'markArea',
+    label: '标记区域',
+    toggle: () => showGroup.markArea = !showGroup.markArea,
+    expanded: () => showGroup.markArea,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记区域',
+        prop: 'markAreaShow',
+        onChange: (val) => updateConfig('markAreaShow', val)
+      },
+      {
+        type: 'custom',
+        label: '标记区域配置',
+        key: 'markArea',
+        prop: 'markArea',
+        dialogTitle: '标记区域配置',
+        placeholder:
+          '如：return [{ name:"高峰期", xAxis:"2023-01-01", yAxis:[10, 20] }]'
+      }
+    ]
+  }
 ]
 
 // 辅助函数

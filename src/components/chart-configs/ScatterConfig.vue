@@ -15,16 +15,28 @@ const emit = defineEmits(['update:modelValue'])
 // 折叠控制
 const showGroup = reactive({
   basic: false,
-
+  label: false,
+  itemStyle: false,
+  markPoint: false,
+  markLine: false,
+  markArea: false,
 })
 
 // 代码弹窗相关
 const showDialog = reactive({
-  
+  label: false,
+  itemStyle: false,
+  markPoint: false,
+  markLine: false,
+  markArea: false
 })
 
 const code = reactive({
-
+  label: '',
+  itemStyle: 'return { color: "#409EFF", borderWidth: 2, borderType: "solid" }',
+  markPoint: 'return { data: [{ type: "max", name: "最高点" }] }',
+  markLine: 'return { data: [{ type: "average", name: "平均值" }] }',
+  markArea: 'return { data: {} }'
 })
 
 // 处理配置更新
@@ -61,9 +73,225 @@ const formGroups = [
     toggle: () => showGroup.basic = !showGroup.basic,
     expanded: () => showGroup.basic,
     items: [
-      
+      {
+        type: 'input-number',
+        label: 'X轴索引',
+        prop: 'xAxisIndex',
+        min: 0,
+        max: 10,
+        step: 1,
+        onChange: (val) => updateConfig('xAxisIndex', val)
+      },
+      {
+        type: 'input-number',
+        label: 'Y轴索引',
+        prop: 'yAxisIndex',
+        min: 0,
+        max: 10,
+        step: 1,
+        onChange: (val) => updateConfig('yAxisIndex', val)
+      },
+      {
+        type: 'select',
+        label: '光标样式',
+        prop: 'cursor',
+        onChange: (val) => updateConfig('cursor', val),
+        options: [
+          { label: '默认', value: 'default' },
+          { label: '十字线', value: 'crosshair' },
+          { label: '手型', value: 'pointer' },
+          { label: '文本', value: 'text' },
+          { label: '移动', value: 'move' },
+          { label: '等待', value: 'wait' }
+        ]
+      }
     ]
   },
+  {
+    key: 'label',
+    label: '数据标签',
+    toggle: () => showGroup.label = !showGroup.label,
+    expanded: () => showGroup.label,
+    items: [
+      {
+        type: 'switch',
+        label: '显示数据标签',
+        prop: 'showLabel',
+        onChange: (val) => updateConfig('showLabel', val)
+      },
+      {
+        type: 'select',
+        label: '标签位置',
+        prop: 'labelPosition',
+        onChange: (val) => updateConfig('labelPosition', val),
+        options: [
+          { label: '内部', value: 'inside' },
+          { label: '顶部', value: 'top' },
+          { label: '右侧', value: 'right' },
+          { label: '左侧', value: 'left' },
+          { label: '底部', value: 'bottom' }
+        ]
+      },
+      {
+        type: 'color-picker',
+        label: '标签颜色',
+        prop: 'labelColor',
+        showAlpha: true,
+        onChange: (val) => updateConfig('labelColor', val)
+      },
+      {
+        type: 'input-number',
+        label: '字体大小',
+        prop: 'labelFontSize',
+        min: 10,
+        max: 30,
+        step: 1,
+        onChange: (val) => updateConfig('labelFontSize', val)
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'label',
+        prop: 'label',
+        dialogTitle: '数据标签样式配置',
+        placeholder: '如：return { show: true, position: "top" }',
+      }
+    ]
+  },
+  {
+    key: 'itemStyle',
+    label: '点',
+    toggle: () => showGroup.itemStyle = !showGroup.itemStyle,
+    expanded: () => showGroup.itemStyle,
+    items: [
+      {
+        type: 'color-picker',
+        label: '点颜色',
+        prop: 'itemStyleColor',
+        showAlpha: true,
+        onChange: (val) => updateConfig('itemStyleColor', val)
+      },
+      {
+        type: 'input-number',
+        label: '点大小',
+        prop: 'itemSymbolSize',
+        min: 1,
+        max: 20,
+        step: 1,
+        onChange: (val) => updateConfig('itemSymbolSize', val)
+      },
+      {
+        type: 'select',
+        label: '点形状',
+        prop: 'itemSymbol',
+        onChange: (val) => updateConfig('itemSymbol', val),
+        options: [
+          { label: '圆形', value: 'circle' },
+          { label: '方形', value: 'rect' },
+          { label: '三角形', value: 'triangle' },
+          { label: '菱形', value: 'diamond' },
+          { label: '图钉', value: 'pin' },
+          { label: '箭头', value: 'arrow' }
+        ]
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'itemStyle',
+        prop: 'itemStyle',
+        dialogTitle: '数据点样式配置',
+        placeholder: '如：return { color: "#409EFF", borderWidth: 2, borderType: "solid" }'
+      }
+    ]
+  },
+  {
+    key: 'markPoint',
+    label: '标记点',
+    toggle: () => showGroup.markPoint = !showGroup.markPoint,
+    expanded: () => showGroup.markPoint,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记点',
+        prop: 'markPointShow',
+        onChange: (val) => updateConfig('markPointShow', val)
+      },
+      {
+        type: 'select',
+        label: '标记点类型',
+        prop: 'markPointSymbol',
+        onChange: (val) => updateConfig('markPointSymbol', val),
+        options: [
+          { label: '圆形', value: 'circle' },
+          { label: '方形', value: 'rect' },
+          { label: '三角形', value: 'triangle' },
+          { label: '菱形', value: 'diamond' },
+          { label: '图钉', value: 'pin' },
+          { label: '箭头', value: 'arrow' }
+        ]
+      },
+      {
+        type: 'input-number',
+        label: '标记点大小',
+        prop: 'markPointSymbolSize',
+        step: 1,
+        onChange: (val) => updateConfig('markPointSymbolSize', val)
+      },
+      {
+        type: 'custom',
+        label: '标记点配置',
+        key: 'markPoint',
+        prop: 'markPoint',
+        dialogTitle: '标记点配置',
+        placeholder: '如：return [{ name: "最高点", coord: [10, 20] }]'
+      }
+    ]
+  },
+  {
+    key: 'markLine',
+    label: '标记线',
+    toggle: () => showGroup.markLine = !showGroup.markLine,
+    expanded: () => showGroup.markLine,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记线',
+        prop: 'markLineShow',
+        onChange: (val) => updateConfig('markLineShow', val)
+      },
+      {
+        type: 'custom',
+        label: '标记线配置',
+        key: 'markLine',
+        prop: 'markLine',
+        dialogTitle: '标记线配置',
+        placeholder: '如：return [{ name: "平均值", yAxis: 10 }]'
+      }
+    ]
+  },
+  {
+    key: 'markArea',
+    label: '标记区域',
+    toggle: () => showGroup.markArea = !showGroup.markArea,
+    expanded: () => showGroup.markArea,
+    items: [
+      {
+        type: 'switch',
+        label: '显示标记区域',
+        prop: 'markAreaShow',
+        onChange: (val) => updateConfig('markAreaShow', val)
+      },
+      {
+        type: 'custom',
+        label: '标记区域配置',
+        key: 'markArea',
+        prop: 'markArea',
+        dialogTitle: '标记区域配置',
+        placeholder:
+          '如：return [{ name:"高峰期", xAxis:"2023-01-01", yAxis:[10, 20] }]'
+      }
+    ]
+  }
 ]
 
 // 辅助函数
