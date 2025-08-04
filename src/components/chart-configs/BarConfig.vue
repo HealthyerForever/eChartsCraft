@@ -18,6 +18,8 @@ const showGroup = reactive({
   label: false,
   backgroundStyle: false,
   itemStyle: false,
+  emphasis: false,
+  blur: false,
   markPoint: false,
   markLine: false,
   markArea: false
@@ -28,6 +30,8 @@ const showDialog = reactive({
   label: false,
   backgroundStyle: false,
   itemStyle: false,
+  emphasis: false,
+  blur: false,
   markPoint: false,
   markLine: false,
   markArea: false
@@ -37,6 +41,8 @@ const code = reactive({
   label: '',
   backgroundStyle: 'return { backgroundColor: "#fff", border: "1px solid #eee" }',
   itemStyle: 'return { color: "#409EFF", borderWidth: 2, borderType: "solid" }',
+  emphasis: 'return { disabled: false, focus: "none" }',
+  blur: 'return {}',
   markPoint: 'return { data: [{ type: "max", name: "最高点" }] }',
   markLine: 'return { data: [{ type: "average", name: "平均值" }] }',
   markArea: 'return { data: {} }'
@@ -242,6 +248,55 @@ const formGroups = [
     ]
   },
   {
+    key: 'emphasis',
+    label: '高亮',
+    toggle: () => showGroup.emphasis = !showGroup.emphasis,
+    expanded: () => showGroup.emphasis,
+    items: [
+      {
+        type: 'switch',
+        label: '关闭高亮',
+        prop: 'emphasisDisabled',
+        onChange: (val) => updateConfig('emphasisDisabled', val)
+      },
+      {
+        type: 'select',
+        label: '聚焦方式',
+        prop: 'emphasisFocus',
+        onChange: (val) => updateConfig('emphasisFocus', val),
+        options: [
+          { label: '无', value: 'none' },
+          { label: '自身', value: 'self' },
+          { label: '系列', value: 'series' },
+        ]
+      },
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'emphasis',
+        prop: 'emphasis',
+        dialogTitle: '高亮样式配置',
+        placeholder: '如：return { disabled: false, focus: "none" }'
+      }
+    ]
+  },
+  {
+    key: 'blur',
+    label: '淡出',
+    toggle: () => showGroup.blur = !showGroup.blur,
+    expanded: () => showGroup.blur,
+    items: [
+      {
+        type: 'custom',
+        label: '自定义样式',
+        key: 'blur',
+        prop: 'blur',
+        dialogTitle: '高亮样式配置',
+        placeholder: '如：return { label: {} }'
+      }
+    ]
+  },
+  {
     key: 'markPoint',
     label: '标记点',
     toggle: () => showGroup.markPoint = !showGroup.markPoint,
@@ -369,7 +424,7 @@ formGroups.forEach(group => {
 
           <el-collapse-transition>
             <div v-show="group.expanded()" class="group-content">
-              <template v-for="(item, idx) in group.items" :key="item.prop || item.label">
+              <template v-for="item in group.items" :key="item.prop || item.label">
                 <!-- 普通表单项 -->
                 <template v-if="item.type !== 'custom'">
                   <el-form-item :label="item.label">

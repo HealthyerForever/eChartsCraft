@@ -60,13 +60,21 @@ const advancedConfig = reactive({
 
     // 图形样式
     itemSymbol: 'circle',
-    itemSymbolSize: 4,
+    itemSymbolSize: 8,
     itemStyleColor: '#409EFF',
     itemStyle: {
       color: '#409EFF',
       borderWidth: 2,
       borderType: 'solid'
     },
+
+    // 高亮样式
+    emphasisDisabled: false,
+    emphasisFocus: 'none',
+    emphasis: {},
+
+    // 淡出样式
+    blur: {},
 
     // 辅助标记
     markPointShow: false,
@@ -117,6 +125,14 @@ const advancedConfig = reactive({
       borderWidth: 2,
       borderType: 'solid'
     },
+
+    // 高亮样式
+    emphasisDisabled: false,
+    emphasisFocus: 'none',
+    emphasis: {},
+
+    // 淡出样式
+    blur: {},
 
     // 辅助标记
     markPointShow: false,
@@ -172,6 +188,14 @@ const advancedConfig = reactive({
       borderWidth: 2,
       borderType: 'solid'
     },
+    
+    // 高亮样式
+    emphasisDisabled: false,
+    emphasisFocus: 'none',
+    emphasis: {},
+
+    // 淡出样式
+    blur: {},
 
     // 辅助标记
     markPointShow: false,
@@ -209,13 +233,21 @@ const advancedConfig = reactive({
 
     // 图形样式
     itemSymbol: 'circle',
-    itemSymbolSize: 4,
+    itemSymbolSize: 8,
     itemStyleColor: '#409EFF',
     itemStyle: {
       color: '#409EFF',
       borderWidth: 2,
       borderType: 'solid'
     },
+    
+    // 高亮样式
+    emphasisDisabled: false,
+    emphasisFocus: 'none',
+    emphasis: {},
+
+    // 淡出样式
+    blur: {},
 
     // 辅助标记
     markPointShow: false,
@@ -403,6 +435,12 @@ const generateOption = () => {
           ...advancedConfig.line.itemStyle,
           color: advancedConfig.line.itemStyleColor,
         },
+        emphasis: {
+          ...advancedConfig.line.emphasis,
+          disabled: advancedConfig.line.emphasisDisabled,
+          focus: advancedConfig.line.emphasisFocus
+        },
+        blur: advancedConfig.line.blur,
         markPoint: advancedConfig.line.markPointShow ? {
           ...advancedConfig.line.markPoint,
           symbol: advancedConfig.line.markPointSymbol,
@@ -442,6 +480,12 @@ const generateOption = () => {
           color: advancedConfig.bar.itemStyleColor,
           opacity: advancedConfig.bar.itemStyleOpacity,
         },
+        emphasis: {
+          ...advancedConfig.bar.emphasis,
+          disabled: advancedConfig.bar.emphasisDisabled,
+          focus: advancedConfig.bar.emphasisFocus
+        },
+        blur: advancedConfig.bar.blur,
         markPoint: advancedConfig.bar.markPointShow ? {
           ...advancedConfig.bar.markPoint,
           symbol: advancedConfig.bar.markPointSymbol,
@@ -490,6 +534,12 @@ const generateOption = () => {
           color: advancedConfig.pie.itemStyleColor,
           opacity: advancedConfig.pie.itemStyleOpacity,
         },
+        emphasis: {
+          ...advancedConfig.pie.emphasis,
+          disabled: advancedConfig.pie.emphasisDisabled,
+          focus: advancedConfig.pie.emphasisFocus
+        },
+        blur: advancedConfig.pie.blur,
         markPoint: advancedConfig.pie.markPointShow ? {
           ...advancedConfig.pie.markPoint,
           symbol: advancedConfig.pie.markPointSymbol,
@@ -522,6 +572,12 @@ const generateOption = () => {
           ...advancedConfig.scatter.itemStyle,
           color: advancedConfig.scatter.itemStyleColor,
         },
+        emphasis: {
+          ...advancedConfig.scatter.emphasis,
+          disabled: advancedConfig.scatter.emphasisDisabled,
+          focus: advancedConfig.scatter.emphasisFocus
+        },
+        blur: advancedConfig.scatter.blur,
         markPoint: advancedConfig.scatter.markPointShow ? {
           ...advancedConfig.scatter.markPoint,
           symbol: advancedConfig.scatter.markPointSymbol,
