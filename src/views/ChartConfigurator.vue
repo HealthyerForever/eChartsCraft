@@ -664,7 +664,7 @@ generateOption()
 }
 
 :deep(.el-tabs) {
-  width: 400px;
+  width: 300px;
   height: 700px;
 }
 
