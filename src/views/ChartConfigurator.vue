@@ -4,6 +4,9 @@ import BaseChart from '@/components/BaseChart.vue'
 import DataConfig from '@/components/DataConfig.vue'
 import CommonConfig from '@/components/CommonConfig.vue'
 import AdvancedConfig from '@/components/AdvancedConfig.vue'
+import { ElMessage } from 'element-plus'
+import { DocumentCopy } from '@element-plus/icons-vue'
+import { useClipboard } from '@vueuse/core'
 
 const activeTab = ref('type')
 const chartType = ref('line')
@@ -188,7 +191,7 @@ const advancedConfig = reactive({
       borderWidth: 2,
       borderType: 'solid'
     },
-    
+
     // 高亮样式
     emphasisDisabled: false,
     emphasisFocus: 'none',
@@ -240,7 +243,7 @@ const advancedConfig = reactive({
       borderWidth: 2,
       borderType: 'solid'
     },
-    
+
     // 高亮样式
     emphasisDisabled: false,
     emphasisFocus: 'none',
@@ -505,7 +508,7 @@ const generateOption = () => {
           { value: 135, name: '视频广告' },
           { value: 1548, name: '搜索引擎' }
         ],
-        data: chartData.series[0].data.map((m, index) => ({value: m, name: chartData.categories[index]})),
+        data: chartData.series[0].data.map((m, index) => ({ value: m, name: chartData.categories[index] })),
         radius: [advancedConfig.pie.innerRadius + '%', advancedConfig.pie.outerRadius + '%'],
         roseType: advancedConfig.pie.roseType,
         startAngle: advancedConfig.pie.startAngle,
@@ -592,6 +595,14 @@ const generateOption = () => {
   currentOption.value = option
 }
 
+const { copy } = useClipboard()
+const copyConfig = () => {
+  const configStr = JSON.stringify(currentOption.value, null, 2)
+  copy(configStr).then(() => {
+    ElMessage.success('配置已复制到剪贴板')
+  })
+}
+
 // 初始化默认数据
 chartData.categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 chartData.series = [{
@@ -622,6 +633,13 @@ generateOption()
         <AdvancedConfig :chart-type="chartType" :model-value="advancedConfig[chartType]"
           @update:modelValue="handleAdvancedUpdate" />
       </el-tab-pane>
+
+      <el-tab-pane label="当前配置" name="currentConfig">
+        <div class="config-viewer">
+          <pre>{{ currentOption }}</pre>
+          <el-button type="text" :icon="DocumentCopy" @click="copyConfig" class="icon-only-btn" />
+        </div>
+      </el-tab-pane>
     </el-tabs>
 
     <div class="chart-preview">
@@ -646,7 +664,39 @@ generateOption()
 }
 
 :deep(.el-tabs) {
-  width: 300px;
+  width: 400px;
   height: 700px;
+}
+
+.config-viewer {
+  position: relative;
+  background: #f5f7fa;
+  padding: 12px;
+  border-radius: 4px;
+  max-height: 600px;
+  overflow: auto;
+}
+
+.config-viewer pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: cursive;
+  font-size: 14px;
+}
+
+.icon-only-btn {
+  position: absolute;
+  font-size: 18px;
+  top: 0px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
+.icon-only-btn:hover {
+  color: #409eff;
+  background: transparent !important;
 }
 </style>
