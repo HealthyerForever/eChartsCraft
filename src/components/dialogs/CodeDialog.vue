@@ -36,7 +36,7 @@ const handleOk = () => {
     <el-input
       type="textarea"
       v-model="code"
-      :rows="6"
+      :rows="10"
       :placeholder="placeholder"
     />
     <template #footer>
